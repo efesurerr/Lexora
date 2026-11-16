@@ -1,0 +1,1048 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lexora</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Düzen: koyu, tek sütun, telefon odaklı. Cevaplar harf karoları olarak dizilir; satır uzadıkça cevap uzar. Vurgu mordan turkuaza giden LEXORA başlığında. */
+:root {
+  --bg: #101426;
+  --bg2: #151B30;
+  --surface: #1B2340;
+  --purple: #8B5CF6;
+  --purple2: #A78BFA;
+  --cyan: #22D3EE;
+  --ok: #34D399;
+  --warn: #FBBF24;
+  --bad: #F87171;
+  --ink: #FFFFFF;
+  --ink2: #A5B4FC;
+  --muted: #64748B;
+  --line: #303A59;
+  --f-display: 'Bricolage Grotesque', 'Trebuchet MS', system-ui, sans-serif;
+  --f-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background-color: var(--bg);
+  background-image: radial-gradient(48rem 22rem at 50% -6rem, rgba(139, 92, 246, .24), transparent 70%);
+  background-repeat: no-repeat;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-block: 14px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  min-height: 100%;
+}
+#app { max-width: 30rem; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+button, select, input { font-family: inherit; }
+:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
+
+/* Üst şerit */
+.hud { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 40px; }
+.hudr { display: flex; gap: 8px; }
+.brand { font-family: var(--f-display); font-weight: 800; letter-spacing: .14em; color: var(--purple2); }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px;
+  border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink2);
+  font-size: .85rem; font-weight: 600; cursor: pointer;
+}
+.chip svg { width: 16px; height: 16px; flex: none; }
+.chip::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.chip[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
+.chip[aria-pressed="true"]::after { background: var(--ok); }
+
+.top { display: flex; justify-content: space-between; gap: 12px; font-size: .875rem; color: var(--ink2); font-weight: 500; }
+.eyebrow { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--cyan); font-weight: 600; }
+.lead { color: var(--ink2); }
+.muted { color: var(--ink2); }
+.lab { font-weight: 600; font-size: .9rem; color: var(--ink2); }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+.row { display: flex; justify-content: space-between; gap: 12px; align-items: center; font-size: .9rem; color: var(--ink2); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.card.center { text-align: center; padding-block: 36px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.cat { font-size: 2.1rem; line-height: 1.1; margin-top: 4px; }
+.name { font-size: 2.5rem; line-height: 1.1; overflow-wrap: anywhere; }
+.note { font-size: .875rem; color: var(--ink2); }
+.note.ok { color: var(--ok); }
+.note.bad { color: var(--bad); font-weight: 600; }
+
+/* Harf karoları */
+.word { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+.word i {
+  font-style: normal; display: grid; place-items: center;
+  width: 1.9rem; height: 2.3rem; border-radius: 6px;
+  background: var(--line); color: var(--ink);
+  font-family: var(--f-display); font-weight: 800; font-size: 1.1rem;
+}
+.word b { width: .7rem; }
+.word.win i { background: var(--ok); color: #07241A; }
+.word.out i { background: transparent; border: 1.5px dashed var(--bad); color: var(--bad); }
+.word.big i { width: 2.6rem; height: 3.1rem; font-size: 1.6rem; border-radius: 8px; }
+.mark { display: flex; gap: 4px; margin: 6px 0 0; }
+.mark i {
+  font-style: normal; display: grid; place-items: center; flex: 1; max-width: 3.4rem; aspect-ratio: 3 / 3.6;
+  border-radius: 10px; color: #101426; font-family: var(--f-display); font-weight: 800; font-size: clamp(1.6rem, 9vw, 2.3rem);
+}
+
+/* Menü düğmeleri ve formlar */
+.menu {
+  display: flex; flex-direction: column; gap: 2px; text-align: left; width: 100%; min-height: 72px; padding: 14px 16px;
+  border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.menu strong { font-family: var(--f-display); font-size: 1.2rem; }
+.menu span { color: var(--ink2); font-size: .9rem; }
+.menu.primary { background: var(--purple); border-color: var(--purple); }
+.menu.primary span { color: #F1EAFF; }
+.menu[aria-disabled="true"] { opacity: .55; cursor: default; }
+.field {
+  width: 100%; min-height: 54px; border: 1.5px solid var(--line); border-radius: 12px;
+  padding: 0 14px; font-size: 1.15rem; background: var(--bg2); color: var(--ink);
+}
+.prow { display: flex; gap: 8px; }
+.prow .field { min-height: 50px; font-size: 1rem; }
+.icon {
+  min-width: 48px; min-height: 50px; border: 1.5px solid var(--line); background: var(--surface);
+  color: var(--ink); border-radius: 12px; font-size: 1.3rem; cursor: pointer;
+}
+.seg { display: flex; gap: 6px; }
+.seg button {
+  flex: 1; min-height: 46px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--purple); color: var(--ink); border-color: var(--purple2); }
+.btn {
+  display: block; width: 100%; min-height: 56px; border: 0; border-radius: 12px;
+  background: var(--purple); color: var(--ink); font-family: var(--f-display);
+  font-weight: 800; font-size: 1.2rem; cursor: pointer;
+}
+.btn:disabled { background: var(--line); color: var(--muted); cursor: default; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); font-weight: 600; font-size: 1.05rem; }
+.link {
+  background: none; border: 0; color: var(--cyan); font-weight: 600; font-size: .95rem;
+  min-height: 44px; padding: 0 4px; cursor: pointer; text-decoration: underline;
+}
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar > div { height: 100%; background: var(--warn); transform-origin: left; }
+.bar.low > div { background: var(--bad); }
+.bar.ok > div { background: var(--ok); }
+details.card summary { font-weight: 600; cursor: pointer; min-height: 28px; }
+details.card ol { margin: 10px 0 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 6px; color: var(--ink2); }
+
+/* Sonuç ve puan */
+.res { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.res.won { border-color: var(--ok); }
+.rhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.rfoot { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: .9rem; }
+.s-ok { color: var(--ok); font-weight: 600; }
+.s-warn { color: var(--warn); font-weight: 600; }
+.s-bad { color: var(--bad); font-weight: 600; }
+.badge { background: var(--ok); color: #07241A; font-family: var(--f-display); font-weight: 800; border-radius: 999px; padding: 2px 12px; }
+.tag { font-size: .75rem; color: var(--cyan); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; margin-left: 6px; white-space: nowrap; }
+.verdict { font-family: var(--f-display); font-weight: 800; font-size: 1.25rem; line-height: 1.25; }
+.board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.board li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.board li:first-child { border-top: 0; }
+.board .who { display: flex; align-items: center; gap: 10px; min-width: 0; overflow-wrap: anywhere; }
+.rank { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 6px; background: var(--line); font-family: var(--f-display); font-weight: 800; flex: none; }
+.rank.first { background: var(--ok); color: #07241A; }
+.pts { font-variant-numeric: tabular-nums; font-weight: 700; }
+.pts em { font-style: normal; color: var(--ok); font-size: .85em; }
+.codebox { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+</style>
+
+<main id="app"></main>
+
+<script>
+(function () {
+  'use strict';
+
+  var LANGS = ['tr', 'en', 'de', 'es', 'fr'];
+  var LNAME = { tr: 'Türkçe', en: 'English', de: 'Deutsch', es: 'Español', fr: 'Français' };
+  var LOC = { tr: 'tr-TR', en: 'en', de: 'de', es: 'es', fr: 'fr' };
+
+  /* ---------- Arayüz metinleri ---------- */
+  var TX = {
+    tr: {
+      tag: "Kategoriye uyan kelimeyi bil, en uzununu yaz.",
+      local: "Aynı telefonda oyna", localh: "Telefonu sırayla arkadaşlarına ver.",
+      online: "Oda kur", onlineh: "Kodu paylaş, herkes kendi telefonundan katılsın.",
+      joinroom: "Odaya katıl", joinh: "Arkadaşının verdiği 5 harfli kodu gir.",
+      players: "Oyuncular", add: "Oyuncu ekle", rounds: "Tur sayısı", timer: "Cevap süresi", nolimit: "Süresiz", sec: "sn",
+      start: "Oyunu başlat", how: "Nasıl oynanır?",
+      r1: "Her turda bir kategori çıkar.", r2: "Herkes gizlice bir kelime yazar.",
+      r3: "Kategoriye uyan en uzun kelimeyi yazan turu kazanır. Eşit uzunluktakiler puanı paylaşır.",
+      r4: "Yerleşik listede olmayan cevabı oyuncular birlikte geçerli sayabilir ya da reddedebilir.",
+      round: "Tur {a} / {b}", nplayers: "{n} oyuncu", turn: "Sıra", takephone: "Telefonu al, diğerleri ekrana bakmasın.",
+      ready: "Hazırım", catfor: "{n} için kategori", answer: "Cevabın", letters: "harf", send: "Cevabı gönder", skip: "Pas geç", passed: "Pas geçti",
+      best: "En uzun cevap {n} harf: {w}.", nobody: "Bu turda kimse puan almadı.",
+      inlist: "Listede var", okman: "Geçerli sayıldı", invalid: "Geçersiz sayıldı", notin: "Listede yok",
+      markok: "Geçerli say", markbad: "Geçersiz say", board: "Puan durumu", nextr: "Sonraki tur", seeres: "Sonuçları gör",
+      over: "Oyun bitti", winner: "Kazanan: {w}", tie: "Berabere: {w}", again: "Aynı oyuncularla yeniden", home: "Ana menü",
+      yourname: "Adın", code: "Oda kodu", enter: "Katıl", lobby: "Oyuncular katılıyor", hosttag: "oda sahibi", youtag: "sen",
+      startgame: "Oyunu başlat", need2: "Başlamak için en az 2 oyuncu gerekir.", waitfor: "Cevap veren: {a} / {b}",
+      waithost: "Oda sahibinin oyunu başlatması bekleniyor.", hostnext: "Sonraki turu oda sahibi başlatır.",
+      copy: "Kodu kopyala", copied: "Kopyalandı", notfound: "Bu kodla bir oda bulunamadı.", started: "Bu oyun zaten başladı.",
+      full: "Oda dolu, en fazla 6 oyuncu katılabilir.", sent: "Cevabın gönderildi.", forcereveal: "Şimdi sonuçları göster",
+      leave: "Odadan çık", language: "Dil", music: "Müzik", fx: "Efekt", back: "Geri",
+      connecting: "Online mod hazırlanıyor…", dbready: "Online mod hazır.",
+      onlineoff: "Online mod bu bağlantıda kullanılamıyor. Oturum açmış ve sayfaya erişimi olan kişiler oynayabilir.",
+      nowrite: "Online oynamak için bu sayfada katılımcı (Contributor) erişimin olmalı.",
+      roomerr: "İşlem tamamlanamadı, tekrar dene.", pl: "Oyuncu", setup: "Oyun ayarları", loading: "Odaya bağlanılıyor…"
+    },
+    en: {
+      tag: "Know a word that fits the category, then write the longest one.",
+      local: "Play on one phone", localh: "Pass the phone around the table.",
+      online: "Create a room", onlineh: "Share the code so everyone joins from their own phone.",
+      joinroom: "Join a room", joinh: "Enter the 5-letter code from your friend.",
+      players: "Players", add: "Add player", rounds: "Rounds", timer: "Answer time", nolimit: "No limit", sec: "s",
+      start: "Start game", how: "How to play",
+      r1: "Each round shows a category.", r2: "Everyone secretly types one word.",
+      r3: "The longest valid word wins the round. Equal lengths share the point.",
+      r4: "Players can accept or reject an answer that is not in the built-in list.",
+      round: "Round {a} / {b}", nplayers: "{n} players", turn: "Up next", takephone: "Take the phone and keep it hidden from the others.",
+      ready: "I'm ready", catfor: "Category for {n}", answer: "Your answer", letters: "letters", send: "Submit answer", skip: "Pass", passed: "Passed",
+      best: "Longest answer, {n} letters: {w}.", nobody: "Nobody scored this round.",
+      inlist: "In the list", okman: "Accepted", invalid: "Rejected", notin: "Not in the list",
+      markok: "Accept", markbad: "Reject", board: "Scoreboard", nextr: "Next round", seeres: "See results",
+      over: "Game over", winner: "Winner: {w}", tie: "Tie: {w}", again: "Play again with same players", home: "Main menu",
+      yourname: "Your name", code: "Room code", enter: "Join", lobby: "Players are joining", hosttag: "host", youtag: "you",
+      startgame: "Start game", need2: "You need at least 2 players to start.", waitfor: "Answered: {a} / {b}",
+      waithost: "Waiting for the host to start the game.", hostnext: "The host starts the next round.",
+      copy: "Copy code", copied: "Copied", notfound: "No room found with this code.", started: "This game has already started.",
+      full: "The room is full (6 players maximum).", sent: "Your answer is in.", forcereveal: "Show results now",
+      leave: "Leave room", language: "Language", music: "Music", fx: "Effects", back: "Back",
+      connecting: "Preparing online mode…", dbready: "Online mode is ready.",
+      onlineoff: "Online mode is not available on this link. Signed-in people with access to this page can play.",
+      nowrite: "You need Contributor access to this page to play online.",
+      roomerr: "That did not work. Try again.", pl: "Player", setup: "Game settings", loading: "Connecting to the room…"
+    },
+    de: {
+      tag: "Finde ein passendes Wort zur Kategorie und schreibe das längste.",
+      local: "Auf einem Handy spielen", localh: "Reicht das Handy reihum.",
+      online: "Raum erstellen", onlineh: "Code teilen, jeder tritt mit dem eigenen Handy bei.",
+      joinroom: "Raum beitreten", joinh: "Gib den 5-stelligen Code deiner Freunde ein.",
+      players: "Spieler", add: "Spieler hinzufügen", rounds: "Runden", timer: "Antwortzeit", nolimit: "Unbegrenzt", sec: "s",
+      start: "Spiel starten", how: "So wird gespielt",
+      r1: "In jeder Runde erscheint eine Kategorie.", r2: "Alle schreiben heimlich ein Wort.",
+      r3: "Das längste gültige Wort gewinnt die Runde. Bei Gleichstand teilen sich alle den Punkt.",
+      r4: "Antworten, die nicht in der Liste stehen, könnt ihr gemeinsam gelten lassen oder ablehnen.",
+      round: "Runde {a} / {b}", nplayers: "{n} Spieler", turn: "Als Nächstes", takephone: "Nimm das Handy und schütze den Bildschirm vor den anderen.",
+      ready: "Bereit", catfor: "Kategorie für {n}", answer: "Deine Antwort", letters: "Buchstaben", send: "Antwort senden", skip: "Passen", passed: "Gepasst",
+      best: "Längste Antwort mit {n} Buchstaben: {w}.", nobody: "In dieser Runde gab es keine Punkte.",
+      inlist: "In der Liste", okman: "Anerkannt", invalid: "Abgelehnt", notin: "Nicht in der Liste",
+      markok: "Gelten lassen", markbad: "Ablehnen", board: "Punktestand", nextr: "Nächste Runde", seeres: "Ergebnis ansehen",
+      over: "Spiel beendet", winner: "Gewinner: {w}", tie: "Unentschieden: {w}", again: "Nochmal mit denselben Spielern", home: "Hauptmenü",
+      yourname: "Dein Name", code: "Raumcode", enter: "Beitreten", lobby: "Spieler treten bei", hosttag: "Gastgeber", youtag: "du",
+      startgame: "Spiel starten", need2: "Zum Starten braucht es mindestens 2 Spieler.", waitfor: "Geantwortet: {a} / {b}",
+      waithost: "Warten, bis der Gastgeber das Spiel startet.", hostnext: "Der Gastgeber startet die nächste Runde.",
+      copy: "Code kopieren", copied: "Kopiert", notfound: "Mit diesem Code wurde kein Raum gefunden.", started: "Dieses Spiel hat schon begonnen.",
+      full: "Der Raum ist voll (höchstens 6 Spieler).", sent: "Deine Antwort ist eingegangen.", forcereveal: "Ergebnis jetzt zeigen",
+      leave: "Raum verlassen", language: "Sprache", music: "Musik", fx: "Effekte", back: "Zurück",
+      connecting: "Online-Modus wird vorbereitet…", dbready: "Online-Modus ist bereit.",
+      onlineoff: "Der Online-Modus ist über diesen Link nicht verfügbar. Angemeldete Personen mit Zugriff auf diese Seite können mitspielen.",
+      nowrite: "Zum Online-Spielen brauchst du Mitwirkenden-Zugriff (Contributor) auf diese Seite.",
+      roomerr: "Das hat nicht geklappt. Versuche es noch einmal.", pl: "Spieler", setup: "Spieleinstellungen", loading: "Verbindung zum Raum…"
+    },
+    es: {
+      tag: "Piensa una palabra de la categoría y escribe la más larga.",
+      local: "Jugar en un solo móvil", localh: "Pasad el móvil por turnos.",
+      online: "Crear sala", onlineh: "Comparte el código y cada uno entra desde su móvil.",
+      joinroom: "Unirse a una sala", joinh: "Escribe el código de 5 letras que te dieron.",
+      players: "Jugadores", add: "Añadir jugador", rounds: "Rondas", timer: "Tiempo para responder", nolimit: "Sin límite", sec: "s",
+      start: "Empezar partida", how: "Cómo se juega",
+      r1: "Cada ronda sale una categoría.", r2: "Todos escriben una palabra en secreto.",
+      r3: "Gana la ronda la palabra válida más larga. Si empatan, comparten el punto.",
+      r4: "Las respuestas que no estén en la lista las podéis aceptar o rechazar entre todos.",
+      round: "Ronda {a} / {b}", nplayers: "{n} jugadores", turn: "Turno de", takephone: "Coge el móvil y que los demás no miren la pantalla.",
+      ready: "Listo", catfor: "Categoría para {n}", answer: "Tu respuesta", letters: "letras", send: "Enviar respuesta", skip: "Pasar", passed: "Pasó",
+      best: "Respuesta más larga, {n} letras: {w}.", nobody: "Nadie puntuó en esta ronda.",
+      inlist: "Está en la lista", okman: "Aceptada", invalid: "Rechazada", notin: "No está en la lista",
+      markok: "Aceptar", markbad: "Rechazar", board: "Marcador", nextr: "Siguiente ronda", seeres: "Ver resultados",
+      over: "Fin de la partida", winner: "Ganador: {w}", tie: "Empate: {w}", again: "Repetir con los mismos jugadores", home: "Menú principal",
+      yourname: "Tu nombre", code: "Código de sala", enter: "Entrar", lobby: "Los jugadores se están uniendo", hosttag: "anfitrión", youtag: "tú",
+      startgame: "Empezar partida", need2: "Hacen falta al menos 2 jugadores para empezar.", waitfor: "Han respondido: {a} / {b}",
+      waithost: "Esperando a que el anfitrión empiece la partida.", hostnext: "El anfitrión empieza la siguiente ronda.",
+      copy: "Copiar código", copied: "Copiado", notfound: "No se encontró ninguna sala con ese código.", started: "Esta partida ya ha empezado.",
+      full: "La sala está llena (máximo 6 jugadores).", sent: "Tu respuesta ya está enviada.", forcereveal: "Mostrar resultados ahora",
+      leave: "Salir de la sala", language: "Idioma", music: "Música", fx: "Efectos", back: "Atrás",
+      connecting: "Preparando el modo online…", dbready: "El modo online está listo.",
+      onlineoff: "El modo online no está disponible con este enlace. Pueden jugar las personas con sesión iniciada y acceso a esta página.",
+      nowrite: "Necesitas acceso de colaborador (Contributor) a esta página para jugar online.",
+      roomerr: "No se pudo completar. Inténtalo de nuevo.", pl: "Jugador", setup: "Ajustes de la partida", loading: "Conectando con la sala…"
+    },
+    fr: {
+      tag: "Trouve un mot de la catégorie, puis écris le plus long.",
+      local: "Jouer sur un seul téléphone", localh: "Faites passer le téléphone chacun votre tour.",
+      online: "Créer un salon", onlineh: "Partage le code et chacun rejoint depuis son téléphone.",
+      joinroom: "Rejoindre un salon", joinh: "Saisis le code à 5 lettres que tu as reçu.",
+      players: "Joueurs", add: "Ajouter un joueur", rounds: "Manches", timer: "Temps de réponse", nolimit: "Illimité", sec: "s",
+      start: "Lancer la partie", how: "Comment jouer",
+      r1: "Chaque manche affiche une catégorie.", r2: "Chacun écrit un mot en secret.",
+      r3: "Le mot valide le plus long gagne la manche. En cas d’égalité, le point est partagé.",
+      r4: "Une réponse absente de la liste peut être acceptée ou refusée par les joueurs.",
+      round: "Manche {a} / {b}", nplayers: "{n} joueurs", turn: "À", takephone: "Prends le téléphone et cache l’écran aux autres.",
+      ready: "Prêt", catfor: "Catégorie pour {n}", answer: "Ta réponse", letters: "lettres", send: "Envoyer la réponse", skip: "Passer", passed: "A passé",
+      best: "Réponse la plus longue, {n} lettres : {w}.", nobody: "Personne ne marque de point cette manche.",
+      inlist: "Dans la liste", okman: "Acceptée", invalid: "Refusée", notin: "Absente de la liste",
+      markok: "Accepter", markbad: "Refuser", board: "Classement", nextr: "Manche suivante", seeres: "Voir les résultats",
+      over: "Partie terminée", winner: "Gagnant : {w}", tie: "Égalité : {w}", again: "Rejouer avec les mêmes joueurs", home: "Menu principal",
+      yourname: "Ton nom", code: "Code du salon", enter: "Rejoindre", lobby: "Les joueurs arrivent", hosttag: "hôte", youtag: "toi",
+      startgame: "Lancer la partie", need2: "Il faut au moins 2 joueurs pour commencer.", waitfor: "Ont répondu : {a} / {b}",
+      waithost: "En attente du lancement par l’hôte.", hostnext: "L’hôte lance la manche suivante.",
+      copy: "Copier le code", copied: "Copié", notfound: "Aucun salon ne correspond à ce code.", started: "Cette partie a déjà commencé.",
+      full: "Le salon est plein (6 joueurs maximum).", sent: "Ta réponse est envoyée.", forcereveal: "Afficher les résultats maintenant",
+      leave: "Quitter le salon", language: "Langue", music: "Musique", fx: "Effets", back: "Retour",
+      connecting: "Préparation du mode en ligne…", dbready: "Le mode en ligne est prêt.",
+      onlineoff: "Le mode en ligne n’est pas disponible avec ce lien. Les personnes connectées ayant accès à cette page peuvent jouer.",
+      nowrite: "Il faut un accès contributeur (Contributor) à cette page pour jouer en ligne.",
+      roomerr: "Impossible de terminer l’action. Réessaie.", pl: "Joueur", setup: "Réglages de la partie", loading: "Connexion au salon…"
+    }
+  };
+
+  /* ---------- Kategoriler ve kelime listeleri ---------- */
+  var CAT = {
+    tr: [
+      ["Binek hayvan", `at,eşek,katır,deve,fil,midilli,tay,sıpa,kısrak,aygır,beygir,doru,yağız,dromedar,öküz,manda,boğa,sığır,lama,zebra,devekuşu,yılkı,boz at,yabani at`],
+      ["Hayvan", `aslan,kaplan,fil,zürafa,zebra,maymun,goril,şempanze,ayı,kurt,tilki,tavşan,sincap,geyik,ceylan,at,eşek,inek,koyun,keçi,domuz,kedi,köpek,fare,sıçan,yarasa,kirpi,gelincik,porsuk,samur,su samuru,vaşak,panter,leopar,çita,jaguar,puma,hiyena,çakal,deve,lama,kanguru,koala,panda,penguen,kutup ayısı,balina,yunus,köpekbalığı,ahtapot,denizanası,kaplumbağa,timsah,yılan,kertenkele,bukalemun,iguana,kurbağa,semender,kartal,şahin,doğan,baykuş,karga,serçe,güvercin,martı,leylek,flamingo,papağan,tavuk,horoz,ördek,kaz,hindi,tavus kuşu,devekuşu,bülbül,kanarya,balık,hamsi,levrek,sazan,alabalık,somon,ton balığı,karides,yengeç,istakoz,midye,istiridye,arı,karınca,kelebek,böcek,sinek,sivrisinek,hamamböceği,örümcek,akrep,solucan,salyangoz,pelikan,sansar,boz ayı,gergedan,suaygırı,okapi,tapir,lemur,yaban domuzu,yaban keçisi,dağ keçisi,karakulak,yılan balığı,vatoz,denizatı,denizyıldızı,mors,fok,deniz aslanı,manda,katır,tay,kuzu,oğlak,buzağı,civciv`],
+      ["Meyve", `elma,armut,kiraz,vişne,çilek,karpuz,kavun,üzüm,portakal,mandalina,limon,greyfurt,muz,ananas,kivi,nar,incir,şeftali,kayısı,erik,ayva,dut,kara dut,hurma,avokado,mango,papaya,böğürtlen,ahududu,frambuaz,yaban mersini,trabzon hurması,bergamot,hindistan cevizi,kestane,zeytin,muşmula,alıç,turunç,liçi,nektarin,çağla,mürdüm eriği,çarkıfelek,yenidünya,dragon meyvesi,kızılcık,frenk üzümü,bektaşi üzümü`],
+      ["Sebze", `domates,salatalık,patlıcan,biber,havuç,patates,soğan,sarımsak,ıspanak,marul,lahana,karnabahar,brokoli,kabak,bamya,fasulye,bezelye,pırasa,kereviz,turp,pancar,mısır,enginar,semizotu,roka,maydanoz,dereotu,nane,tere,kuşkonmaz,mantar,bakla,balkabağı,kırmızı lahana,yeşil soğan,taze fasulye,pazı,brüksel lahanası,şalgam,hıyar,çarliston biber,dolmalık biber,kök kereviz,kabak çiçeği,börülce,barbunya,kuru soğan,tatlı patates,zencefil,isot`],
+      ["Ülke", `türkiye,almanya,fransa,italya,ispanya,portekiz,hollanda,belçika,isviçre,avusturya,yunanistan,bulgaristan,romanya,macaristan,polonya,çekya,rusya,ukrayna,gürcistan,azerbaycan,ermenistan,iran,irak,suriye,lübnan,israil,ürdün,suudi arabistan,mısır,libya,tunus,cezayir,fas,sudan,etiyopya,kenya,nijerya,güney afrika,çin,japonya,güney kore,kuzey kore,hindistan,pakistan,afganistan,bangladeş,endonezya,malezya,tayland,vietnam,filipinler,avustralya,yeni zelanda,kanada,amerika birleşik devletleri,abd,meksika,brezilya,arjantin,şili,kolombiya,peru,venezuela,küba,ingiltere,birleşik krallık,irlanda,izlanda,norveç,isveç,finlandiya,danimarka,estonya,letonya,litvanya,sırbistan,hırvatistan,bosna hersek,arnavutluk,kuzey makedonya,karadağ,slovenya,slovakya,kazakistan,özbekistan,türkmenistan,kırgızistan,tacikistan,moğolistan,katar,kuveyt,umman,yemen,birleşik arap emirlikleri,bahreyn,nepal,sri lanka,kıbrıs,malta,lüksemburg,monako,belarus,moldova,gana,senegal,tanzanya,uganda,angola,madagaskar,somali,kamerun,singapur,myanmar,kamboçya,laos,ekvador,bolivya,uruguay,paraguay,panama,kosta rika,jamaika,haiti,kosova,andorra,lihtenştayn,butan,brunei,maldivler`],
+      ["Türkiye'den şehir", `adana,adıyaman,afyonkarahisar,ağrı,amasya,ankara,antalya,artvin,aydın,balıkesir,bilecik,bingöl,bitlis,bolu,burdur,bursa,çanakkale,çankırı,çorum,denizli,diyarbakır,edirne,elazığ,erzincan,erzurum,eskişehir,gaziantep,giresun,gümüşhane,hakkâri,hatay,ısparta,mersin,istanbul,izmir,kars,kastamonu,kayseri,kırklareli,kırşehir,kocaeli,konya,kütahya,malatya,manisa,kahramanmaraş,mardin,muğla,muş,nevşehir,niğde,ordu,rize,sakarya,samsun,siirt,sinop,sivas,tekirdağ,tokat,trabzon,tunceli,şanlıurfa,uşak,van,yozgat,zonguldak,aksaray,bayburt,karaman,kırıkkale,batman,şırnak,bartın,ardahan,iğdır,yalova,karabük,kilis,osmaniye,düzce`],
+      ["Meslek", `doktor,hemşire,öğretmen,mühendis,avukat,hakim,savcı,polis,asker,itfaiyeci,pilot,kaptan,şoför,aşçı,garson,berber,kuaför,terzi,marangoz,tesisatçı,elektrikçi,çiftçi,balıkçı,kasap,manav,bakkal,fırıncı,eczacı,diş hekimi,veteriner,mimar,ressam,heykeltıraş,yazar,şair,gazeteci,muhabir,oyuncu,yönetmen,müzisyen,şarkıcı,sporcu,antrenör,hakem,bilim insanı,araştırmacı,programcı,yazılımcı,muhasebeci,bankacı,sekreter,tercüman,rehber,hostes,bahçıvan,inşaatçı,usta,kalfa,çırak,kuyumcu,saatçi,ayakkabıcı,boyacı,camcı,tamirci,psikolog,diyetisyen,fizyoterapist,kimyager,fizikçi,biyolog,matematikçi,tarihçi,coğrafyacı,felsefeci,ebe,sürücü,kurye,postacı,güvenlik görevlisi,bekçi,hizmetli,temizlikçi,imam,papaz,haham,rahip,belediye başkanı,milletvekili,vali,kaymakam,noter,bilirkişi,danışman,öğretim üyesi,profesör,doçent,akademisyen,astronot,denizci,madenci,dalgıç,arkeolog,fotoğrafçı,grafikçi,tasarımcı,sunucu,spiker,kameraman,editör,çevirmen`],
+      ["Renk", `kırmızı,mavi,yeşil,sarı,turuncu,mor,pembe,kahverengi,siyah,beyaz,gri,lacivert,turkuaz,bordo,bej,krem,altın,gümüş,bronz,eflatun,fuşya,lila,mercan,haki,kızıl,açık mavi,koyu yeşil,vişne çürüğü,antrasit,ten rengi,hardal,zümrüt,petrol mavisi,ördek yeşili,safran,mürdüm,gül kurusu,kiremit,kanarya sarısı,bakır,çelik mavisi,gökyüzü mavisi,limon sarısı,şeftali rengi,nane yeşili,fıstık yeşili,çivit mavisi,menekşe,kum rengi,kahve,füme`],
+      ["Mutfak eşyası", `tencere,tava,kaşık,çatal,bıçak,tabak,bardak,fincan,kupa,demlik,çaydanlık,cezve,kevgir,süzgeç,rende,oklava,merdane,kepçe,spatula,çırpıcı,mikser,blender,tost makinesi,fırın,ocak,buzdolabı,bulaşık makinesi,mikrodalga,kesme tahtası,açacak,şişe açacağı,tirbuşon,tepsi,sürahi,kavanoz,termos,sofra örtüsü,peçete,düdüklü tencere,güveç,çorba kasesi,kase,salata kasesi,yağdanlık,tuzluk,biberlik,şekerlik,mutfak robotu,tartı,ölçü kabı,wok,çay bardağı,kahve fincanı,ekmek kutusu,saklama kabı,havan,mutfak makası,patates ezici,sebze soyacağı,konserve açacağı,fırın eldiveni,tutacak,ızgara,ekmek kızartma makinesi,su ısıtıcısı,kettle,kahve makinesi,mutfak önlüğü`],
+      ["Spor dalı", `futbol,basketbol,voleybol,hentbol,tenis,masa tenisi,badminton,yüzme,atletizm,jimnastik,güreş,boks,judo,karate,tekvando,eskrim,okçuluk,atıcılık,halter,bisiklet,kayak,buz pateni,buz hokeyi,golf,ragbi,rugby,beyzbol,kriket,yelken,kürek,kano,dalış,sutopu,binicilik,triatlon,pentatlon,maraton,koşu,atlama,disk atma,cirit atma,gülle atma,sörf,paten,kaykay,tırmanış,dağcılık,curling,snowboard,amerikan futbolu,hokey,bilardo,bowling,satranç,dart,parkur,wushu,kickboks,muay thai,sumo,yüksek atlama,uzun atlama,sırıkla atlama,çekiç atma,engelli koşu,kros,plaj voleybolu,futsal,tüfek atıcılığı,bale,paraşüt,yamaç paraşütü,rafting,zıpkın,tekne yarışı`],
+      ["Giysi", `gömlek,tişört,pantolon,etek,elbise,ceket,mont,kaban,palto,hırka,kazak,süveter,yelek,şort,mayo,bikini,çorap,ayakkabı,bot,çizme,terlik,sandalet,spor ayakkabı,kemer,kravat,papyon,şapka,bere,atkı,eldiven,şal,eşarp,pijama,gecelik,takım elbise,smokin,tayt,tulum,önlük,kot,kot pantolon,şalvar,kaftan,pardesü,yağmurluk,sweatshirt,atlet,iç çamaşırı,boxer,külot,sütyen,tunik,bluz,kapüşonlu,sweat,polar,trençkot,gelinlik,damatlık,abiye,bandana,fular,kep,takke,fes,eşofman,eşofman altı,eşofman üstü,polo,polo yaka`],
+      ["Çiçek", `gül,lale,karanfil,papatya,nergis,sümbül,zambak,orkide,menekşe,çiğdem,kasımpatı,aslanağzı,begonya,sardunya,ortanca,yasemin,leylak,kamelya,orman gülü,kardelen,gelincik,ayçiçeği,nilüfer,lavanta,mimoza,akasya,manolya,petunya,şebboy,hanımeli,glayör,kadife,iris,süsen,gardenya,frezya,anemon,açelya,sedef otu,hatmi,hercai menekşe,adaçayı,mor sümbül,cam güzeli,gül hatmi,kır çiçeği,şakayık,beyaz gül,kırmızı gül,sarı gül`],
+      ["Müzik aleti", `gitar,piyano,keman,viyolonsel,çello,flüt,klarnet,obua,fagot,trompet,trombon,tuba,saksafon,davul,zil,org,akordeon,arp,bağlama,saz,ney,kanun,ud,darbuka,tambur,zurna,def,kemençe,mandolin,ukulele,bas gitar,elektro gitar,harmonika,mızıka,ksilofon,marimba,kontrbas,viyola,piccolo,sentezleyici,tef,bendir,cura,kaval,mey,çifte,sipsi,tulum,cümbüş,rebap,santur,lavta,balalayka,sitar,arpa,org,melodika`],
+      ["Taşıt", `araba,otobüs,minibüs,kamyon,kamyonet,tır,motosiklet,bisiklet,scooter,tren,tramvay,metro,metrobüs,uçak,helikopter,gemi,vapur,feribot,tekne,yat,denizaltı,balon,sıcak hava balonu,roket,traktör,ambulans,itfaiye aracı,taksi,dolmuş,teleferik,füniküler,paraşüt,kayık,sandal,kano,jet ski,atlı araba,fayton,vinç,iş makinesi,ekskavatör,buldozer,greyder,kızak,hızlı tren,tır,otomobil,motor,mobilet,deniz otobüsü,römork,karavan,uzay mekiği,uzay gemisi,zeplin,dron,planör,şilep,tanker,balıkçı teknesi`],
+      ["İçecek", `su,çay,kahve,süt,ayran,kefir,şalgam,limonata,meyve suyu,portakal suyu,şerbet,boza,salep,soda,gazoz,kola,bira,şarap,rakı,viski,votka,cin,konyak,şampanya,kokteyl,smoothie,milkshake,türk kahvesi,espresso,cappuccino,latte,bitki çayı,adaçayı,ıhlamur,papatya çayı,nane limon,sahlep,turşu suyu,enerji içeceği,maden suyu,hardaliye,rom,tekila,sake,çekirdek kahve,filtre kahve,mocha,macchiato,americano,yeşil çay,buzlu çay,sıcak çikolata,kakao,elma suyu,vişne suyu,şeftali suyu,nar suyu,havuç suyu`],
+      ["Vücut bölümü", `baş,kafa,saç,göz,kulak,burun,ağız,dil,diş,dudak,yüz,çene,boyun,omuz,kol,dirsek,bilek,el,parmak,tırnak,göğüs,sırt,karın,bel,kalça,bacak,diz,ayak bileği,ayak,topuk,kalp,akciğer,karaciğer,böbrek,mide,bağırsak,beyin,kemik,kas,deri,damar,kaş,kirpik,alın,yanak,avuç,baş parmak,işaret parmağı,omurga,kaburga,safra kesesi,pankreas,dalak,mesane,boğaz,uyluk,baldır,incik,kafatası,şakak,burun deliği,göz kapağı,kulak memesi,köprücük kemiği,yemek borusu,atardamar,toplardamar,tendon,bağ,kıkırdak,göbek`],
+      ["Mobilya", `masa,sandalye,koltuk,kanepe,yatak,dolap,gardırop,komodin,şifonyer,kitaplık,sehpa,tv ünitesi,vitrin,portmanto,askılık,ayakkabılık,çalışma masası,puf,berjer,sedir,divan,yemek masası,bahçe masası,hamak,beşik,ranza,aynalı dolap,raf,vestiyer,konsol,çekmece,bank,tabure,sandık,yatak başlığı,gece lambası,aynalık,şezlong,salıncak,bar taburesi,çocuk karyolası,mutfak dolabı,üst dolap,alt dolap,sürgülü dolap,duvar rafı,paravan,perde,halı,yorgan,yastık`],
+      ["Okul eşyası", `kalem,silgi,kalemtıraş,defter,kitap,çanta,cetvel,pergel,gönye,iletki,makas,yapıştırıcı,boya kalemi,keçeli kalem,pastel boya,sulu boya,fırça,tahta,yazı tahtası,tebeşir,sıra,harita,globus,hesap makinesi,bilgisayar,tablet,dosya,klasör,ataş,zımba,delgeç,not defteri,ajanda,önlük,kalem kutusu,kalemlik,okul çantası,sözlük,atlas,ansiklopedi,test kitabı,etiket,kurşun kalem,dolma kalem,tükenmez kalem,fosforlu kalem,renkli kağıt,fotokopi kağıdı,bant,makas,hamur,pergel`],
+      ["Tatlı", `baklava,künefe,sütlaç,kazandibi,tavuk göğsü,aşure,revani,şekerpare,lokma,tulumba,kadayıf,halka tatlısı,helva,irmik helvası,un helvası,dondurma,pasta,kek,kurabiye,çikolata,lokum,profiterol,tiramisu,cheesecake,brownie,muhallebi,keşkül,supangle,zerde,ayva tatlısı,kabak tatlısı,incir tatlısı,fırın sütlaç,waffle,krep,gofret,donut,eclair,makaron,sufle,fındıklı,şöbiyet,sarığı burma,dolama,cevizli sucuk,pişmaniye,cezerye,ekmek kadayıfı,güllaç,hanım göbeği,dilber dudağı,kemalpaşa,trileçe,magnolia,sakızlı muhallebi`]
+    ],
+    en: [
+      ["Rideable animal", `horse,donkey,mule,camel,elephant,pony,llama,ostrich,reindeer,yak,dromedary,stallion,mare,foal,ox,bull,water buffalo,burro,bactrian camel,arabian horse,clydesdale,shire horse,mustang,thoroughbred,zebra,steed,colt,filly,gelding,hinny,bison`],
+      ["Animal", `lion,tiger,elephant,giraffe,zebra,monkey,gorilla,chimpanzee,bear,wolf,fox,rabbit,squirrel,deer,horse,donkey,cow,sheep,goat,pig,cat,dog,mouse,rat,bat,hedgehog,badger,otter,lynx,panther,leopard,cheetah,jaguar,puma,hyena,jackal,camel,llama,kangaroo,koala,panda,penguin,whale,dolphin,shark,octopus,jellyfish,turtle,crocodile,snake,lizard,chameleon,frog,eagle,hawk,falcon,owl,crow,sparrow,pigeon,seagull,stork,flamingo,parrot,chicken,rooster,duck,goose,turkey,peacock,ostrich,nightingale,canary,salmon,trout,tuna,shrimp,crab,lobster,oyster,bee,ant,butterfly,fly,mosquito,cockroach,spider,scorpion,snail,worm,rhinoceros,hippopotamus,walrus,seal,sea lion,polar bear,moose,bison,wolverine,raccoon,skunk,beaver,mole,weasel,ferret,platypus,armadillo,sloth,anteater,lemur,orangutan,baboon,alligator,iguana,gecko,cobra,python,toad,newt,swan,pelican,vulture,woodpecker,hummingbird,cuckoo,robin,wren,lamb,calf,kitten,puppy,hamster,gazelle,antelope,buffalo,warthog,meerkat,mongoose`],
+      ["Fruit", `apple,pear,cherry,strawberry,watermelon,melon,grape,orange,tangerine,mandarin,lemon,lime,grapefruit,banana,pineapple,kiwi,pomegranate,fig,peach,apricot,plum,quince,mulberry,date,avocado,mango,papaya,blackberry,raspberry,blueberry,cranberry,gooseberry,currant,nectarine,coconut,lychee,passion fruit,guava,persimmon,dragon fruit,star fruit,cantaloupe,honeydew,clementine,olive,tomato,rhubarb,elderberry,kumquat,pomelo,jackfruit,durian,tamarind`],
+      ["Vegetable", `tomato,cucumber,eggplant,aubergine,pepper,carrot,potato,onion,garlic,spinach,lettuce,cabbage,cauliflower,broccoli,zucchini,courgette,pumpkin,squash,okra,green bean,pea,leek,celery,radish,beet,beetroot,corn,artichoke,arugula,rocket,parsley,dill,mint,asparagus,mushroom,turnip,sweet potato,kale,chard,fennel,brussels sprouts,bean,broad bean,lentil,chickpea,shallot,ginger,yam,cassava,bok choy,watercress,endive,horseradish,parsnip,rutabaga,swede,kohlrabi,butternut squash,spring onion,scallion`],
+      ["Country", `turkey,germany,france,italy,spain,portugal,netherlands,belgium,switzerland,austria,greece,bulgaria,romania,hungary,poland,czech republic,czechia,russia,ukraine,georgia,azerbaijan,armenia,iran,iraq,syria,lebanon,israel,jordan,saudi arabia,egypt,libya,tunisia,algeria,morocco,sudan,ethiopia,kenya,nigeria,south africa,china,japan,south korea,north korea,india,pakistan,afghanistan,bangladesh,indonesia,malaysia,thailand,vietnam,philippines,australia,new zealand,canada,united states,usa,united states of america,mexico,brazil,argentina,chile,colombia,peru,venezuela,cuba,united kingdom,uk,england,scotland,wales,ireland,iceland,norway,sweden,finland,denmark,estonia,latvia,lithuania,serbia,croatia,bosnia and herzegovina,albania,north macedonia,montenegro,slovenia,slovakia,kazakhstan,uzbekistan,turkmenistan,kyrgyzstan,tajikistan,mongolia,qatar,kuwait,oman,yemen,united arab emirates,bahrain,nepal,sri lanka,cyprus,malta,luxembourg,monaco,belarus,moldova,ghana,senegal,tanzania,uganda,angola,madagascar,somalia,cameroon,singapore,myanmar,cambodia,laos,ecuador,bolivia,uruguay,paraguay,panama,costa rica,jamaica,haiti,kosovo,andorra,liechtenstein,bhutan,brunei,maldives`],
+      ["Job", `doctor,nurse,teacher,engineer,lawyer,judge,prosecutor,police officer,soldier,firefighter,pilot,captain,driver,chef,cook,waiter,barber,hairdresser,tailor,carpenter,plumber,electrician,farmer,fisherman,butcher,baker,pharmacist,dentist,veterinarian,architect,painter,sculptor,writer,poet,journalist,reporter,actor,actress,director,musician,singer,athlete,coach,referee,scientist,researcher,programmer,developer,accountant,banker,secretary,translator,interpreter,guide,flight attendant,gardener,builder,mechanic,jeweler,watchmaker,psychologist,dietitian,physiotherapist,chemist,physicist,biologist,mathematician,historian,philosopher,midwife,courier,postman,security guard,janitor,cleaner,priest,rabbi,imam,mayor,governor,notary,professor,astronaut,sailor,miner,diver,archaeologist,photographer,designer,presenter,cameraman,editor,surgeon,paramedic,cashier,welder,roofer`],
+      ["Color", `red,blue,green,yellow,orange,purple,pink,brown,black,white,gray,grey,navy,turquoise,maroon,beige,cream,gold,silver,bronze,lavender,violet,magenta,coral,khaki,crimson,scarlet,indigo,teal,cyan,olive,mint,peach,lilac,burgundy,amber,ivory,charcoal,mustard,emerald,sapphire,ruby,rose,salmon,tan,aqua,azure,cobalt,copper,rust,lime,fuchsia,sky blue,light blue,dark green`],
+      ["Kitchen item", `pot,pan,spoon,fork,knife,plate,glass,cup,mug,teapot,kettle,colander,strainer,grater,rolling pin,ladle,spatula,whisk,mixer,blender,toaster,oven,stove,refrigerator,fridge,dishwasher,microwave,cutting board,can opener,bottle opener,corkscrew,tray,pitcher,jar,thermos,napkin,pressure cooker,casserole,bowl,salad bowl,salt shaker,pepper mill,sugar bowl,food processor,scale,measuring cup,wok,coffee maker,coffee machine,oven mitt,tongs,peeler,garlic press,skillet,saucepan,frying pan,baking tray,tablecloth,apron,sponge,dish rack,mortar,pestle,teaspoon,tablespoon,steak knife,butter knife,bread knife,cleaver,zester,funnel,lid`],
+      ["Sport", `football,soccer,basketball,volleyball,handball,tennis,table tennis,ping pong,badminton,swimming,athletics,gymnastics,wrestling,boxing,judo,karate,taekwondo,fencing,archery,shooting,weightlifting,cycling,skiing,ice skating,ice hockey,golf,rugby,baseball,cricket,sailing,rowing,canoeing,diving,water polo,horse riding,triathlon,marathon,running,jumping,discus,javelin,shot put,surfing,skateboarding,climbing,mountaineering,curling,snowboarding,american football,hockey,billiards,pool,snooker,bowling,chess,darts,parkour,kickboxing,sumo,high jump,long jump,pole vault,hammer throw,hurdles,cross country,beach volleyball,futsal,rafting,paragliding,skydiving,lacrosse,squash,polo,triple jump,decathlon,heptathlon,biathlon,luge,bobsled,skeleton`],
+      ["Clothing", `shirt,t-shirt,tee,pants,trousers,jeans,skirt,dress,jacket,coat,overcoat,sweater,jumper,cardigan,vest,shorts,swimsuit,bikini,sock,socks,shoe,shoes,boot,boots,slipper,slippers,sandal,sandals,sneaker,sneakers,belt,tie,bow tie,hat,cap,beanie,scarf,gloves,glove,shawl,pajamas,nightgown,suit,tuxedo,leggings,jumpsuit,apron,raincoat,hoodie,sweatshirt,tank top,underwear,boxers,panties,bra,tunic,blouse,fleece,trench coat,wedding dress,evening gown,tracksuit,polo shirt,poncho,kimono,robe,bathrobe,uniform,mittens,earmuffs`],
+      ["Musical instrument", `guitar,piano,violin,cello,flute,clarinet,oboe,bassoon,trumpet,trombone,tuba,saxophone,drums,drum,cymbal,organ,accordion,harp,banjo,mandolin,ukulele,bass guitar,electric guitar,harmonica,xylophone,marimba,double bass,viola,piccolo,synthesizer,keyboard,tambourine,triangle,bagpipes,sitar,lute,zither,harpsichord,french horn,cornet,bugle,recorder,ocarina,didgeridoo,maracas,castanets,bongo,conga,djembe,timpani,glockenspiel,kazoo,theremin,balalaika,oud,tabla`],
+      ["Vehicle", `car,bus,minibus,truck,lorry,van,pickup,motorcycle,bicycle,bike,scooter,train,tram,subway,metro,airplane,plane,aeroplane,helicopter,ship,ferry,boat,yacht,submarine,balloon,hot air balloon,rocket,tractor,ambulance,fire truck,taxi,cable car,sled,canoe,kayak,jet ski,carriage,crane,excavator,bulldozer,forklift,segway,hovercraft,glider,parachute,trolleybus,rickshaw,tuk tuk,limousine,convertible,jeep,suv,caravan,trailer,moped,snowmobile,cruise ship,tugboat,sailboat,rowboat,speedboat,raft,gondola,steamboat,locomotive,monorail,spaceship,space shuttle,drone,airship,zeppelin,sedan,hatchback,station wagon,coupe`],
+      ["Drink", `water,tea,coffee,milk,juice,orange juice,apple juice,lemonade,soda,cola,beer,wine,whiskey,whisky,vodka,gin,rum,brandy,cognac,champagne,cocktail,smoothie,milkshake,espresso,cappuccino,latte,herbal tea,green tea,iced tea,hot chocolate,cocoa,sparkling water,mineral water,tonic,energy drink,sake,tequila,cider,mead,port,sherry,kefir,ayran,sherbet,punch,eggnog,root beer,ginger ale,sports drink,chai,matcha,mocha,macchiato,americano,flat white,tap water`],
+      ["Body part", `head,hair,eye,ear,nose,mouth,tongue,tooth,teeth,lip,face,chin,neck,shoulder,arm,elbow,wrist,hand,finger,nail,chest,back,stomach,belly,waist,hip,leg,knee,ankle,foot,toe,heel,heart,lung,liver,kidney,brain,bone,muscle,skin,vein,eyebrow,eyelash,forehead,cheek,palm,thumb,spine,rib,pancreas,spleen,bladder,intestine,throat,thigh,calf,shin,skull,jaw,temple,knuckle,nostril,eyelid,earlobe,collarbone,gallbladder,esophagus,artery,tendon,ligament,cartilage`]
+    ],
+    de: [
+      ["Reittier", `pferd,esel,maultier,maulesel,kamel,dromedar,elefant,pony,shetlandpony,lama,ochse,zebra,strauß,rentier,yak,hengst,stute,wallach,fohlen,büffel,wasserbüffel,stier,araber,haflinger,mustang,vollblut,ross,gaul,klepper,schimmel,rappe,fuchs`],
+      ["Tier", `löwe,tiger,elefant,giraffe,zebra,affe,gorilla,schimpanse,bär,wolf,fuchs,hase,kaninchen,eichhörnchen,hirsch,reh,pferd,esel,kuh,schaf,ziege,schwein,katze,hund,maus,ratte,fledermaus,igel,dachs,otter,luchs,panther,leopard,gepard,jaguar,puma,hyäne,schakal,kamel,lama,känguru,koala,panda,pinguin,wal,delfin,hai,krake,qualle,schildkröte,krokodil,schlange,eidechse,chamäleon,frosch,adler,falke,habicht,eule,krähe,rabe,spatz,taube,möwe,storch,flamingo,papagei,huhn,hahn,ente,gans,truthahn,pfau,nachtigall,kanarienvogel,lachs,forelle,thunfisch,garnele,krabbe,hummer,auster,muschel,biene,ameise,schmetterling,fliege,mücke,kakerlake,spinne,skorpion,schnecke,wurm,nashorn,nilpferd,flusspferd,walross,robbe,seehund,seelöwe,eisbär,elch,bison,waschbär,stinktier,biber,maulwurf,wiesel,frettchen,schnabeltier,gürteltier,faultier,ameisenbär,orang-utan,pavian,alligator,leguan,gecko,kobra,python,kröte,molch,schwan,pelikan,geier,specht,kolibri,kuckuck,rotkehlchen,zaunkönig,lamm,kalb,kätzchen,welpe,hamster,gazelle,antilope`],
+      ["Obst", `apfel,birne,kirsche,erdbeere,wassermelone,melone,traube,weintraube,orange,mandarine,zitrone,limette,grapefruit,banane,ananas,kiwi,granatapfel,feige,pfirsich,aprikose,pflaume,zwetschge,quitte,maulbeere,dattel,avocado,mango,papaya,brombeere,himbeere,heidelbeere,blaubeere,preiselbeere,stachelbeere,johannisbeere,nektarine,kokosnuss,litschi,maracuja,guave,kaki,drachenfrucht,sternfrucht,clementine,olive,holunderbeere,mirabelle,hagebutte,kumquat,pomelo,cranberry`],
+      ["Gemüse", `tomate,gurke,aubergine,paprika,karotte,möhre,kartoffel,zwiebel,knoblauch,spinat,salat,kopfsalat,kohl,blumenkohl,brokkoli,zucchini,kürbis,okra,grüne bohne,erbse,lauch,sellerie,radieschen,rettich,rote bete,mais,artischocke,rucola,petersilie,dill,minze,spargel,pilz,champignon,rübe,steckrübe,süßkartoffel,grünkohl,mangold,fenchel,rosenkohl,bohne,linse,kichererbse,schalotte,ingwer,pastinake,chicorée,meerrettich,kohlrabi,rotkohl,weißkohl,wirsing,porree,schwarzwurzel,feldsalat,frühlingszwiebel`],
+      ["Land", `türkei,deutschland,frankreich,italien,spanien,portugal,niederlande,belgien,schweiz,österreich,griechenland,bulgarien,rumänien,ungarn,polen,tschechien,russland,ukraine,georgien,aserbaidschan,armenien,iran,irak,syrien,libanon,israel,jordanien,saudi-arabien,ägypten,libyen,tunesien,algerien,marokko,sudan,äthiopien,kenia,nigeria,südafrika,china,japan,südkorea,nordkorea,indien,pakistan,afghanistan,bangladesch,indonesien,malaysia,thailand,vietnam,philippinen,australien,neuseeland,kanada,usa,vereinigte staaten,mexiko,brasilien,argentinien,chile,kolumbien,peru,venezuela,kuba,vereinigtes königreich,großbritannien,england,schottland,wales,irland,island,norwegen,schweden,finnland,dänemark,estland,lettland,litauen,serbien,kroatien,bosnien und herzegowina,albanien,nordmazedonien,montenegro,slowenien,slowakei,kasachstan,usbekistan,turkmenistan,kirgisistan,tadschikistan,mongolei,katar,kuwait,oman,jemen,vereinigte arabische emirate,bahrain,nepal,sri lanka,zypern,malta,luxemburg,monaco,belarus,weißrussland,moldawien,ghana,senegal,tansania,uganda,angola,madagaskar,somalia,kamerun,singapur,myanmar,kambodscha,laos,ecuador,bolivien,uruguay,paraguay,panama,costa rica,jamaika,haiti,kosovo,andorra,liechtenstein,bhutan,brunei,malediven`],
+      ["Beruf", `arzt,ärztin,krankenschwester,krankenpfleger,lehrer,lehrerin,ingenieur,anwalt,richter,staatsanwalt,polizist,soldat,feuerwehrmann,pilot,kapitän,fahrer,koch,köchin,kellner,friseur,schneider,tischler,schreiner,klempner,installateur,elektriker,bauer,landwirt,fischer,metzger,fleischer,bäcker,apotheker,zahnarzt,tierarzt,architekt,maler,bildhauer,schriftsteller,autor,dichter,journalist,reporter,schauspieler,regisseur,musiker,sänger,sportler,trainer,schiedsrichter,wissenschaftler,forscher,programmierer,entwickler,buchhalter,bankkaufmann,sekretär,übersetzer,dolmetscher,reiseleiter,stewardess,gärtner,maurer,mechaniker,juwelier,uhrmacher,psychologe,ernährungsberater,physiotherapeut,chemiker,physiker,biologe,mathematiker,historiker,philosoph,hebamme,kurier,briefträger,postbote,wachmann,hausmeister,reinigungskraft,priester,rabbiner,imam,bürgermeister,notar,professor,astronaut,matrose,bergmann,taucher,archäologe,fotograf,designer,moderator,kameramann,lektor,chirurg,sanitäter,kassierer,schweißer,dachdecker`],
+      ["Farbe", `rot,blau,grün,gelb,orange,lila,violett,rosa,pink,braun,schwarz,weiß,grau,marineblau,türkis,bordeaux,beige,creme,gold,silber,bronze,lavendel,magenta,koralle,khaki,purpur,indigo,petrol,cyan,oliv,mint,pfirsich,flieder,bernstein,elfenbein,anthrazit,senf,smaragd,saphir,rubinrot,hellblau,dunkelblau,hellgrün,dunkelgrün,himmelblau,kupfer,rostrot,azur,kobalt`],
+      ["Küchengegenstand", `topf,pfanne,löffel,gabel,messer,teller,glas,tasse,becher,teekanne,wasserkocher,sieb,reibe,nudelholz,schöpflöffel,kelle,spatel,schneebesen,mixer,toaster,backofen,herd,kühlschrank,geschirrspüler,spülmaschine,mikrowelle,schneidebrett,dosenöffner,flaschenöffner,korkenzieher,tablett,krug,karaffe,thermoskanne,serviette,schnellkochtopf,auflaufform,schüssel,salatschüssel,salzstreuer,pfeffermühle,zuckerdose,küchenmaschine,waage,messbecher,wok,kaffeemaschine,topflappen,zange,schäler,knoblauchpresse,backblech,tischdecke,schürze,schwamm,mörser,teelöffel,esslöffel,brotmesser,hackmesser,fleischklopfer,trichter,gemüsehobel`],
+      ["Sportart", `fußball,basketball,volleyball,handball,tennis,tischtennis,badminton,schwimmen,leichtathletik,turnen,ringen,boxen,judo,karate,taekwondo,fechten,bogenschießen,schießen,gewichtheben,radfahren,skifahren,eislaufen,eishockey,golf,rugby,baseball,kricket,segeln,rudern,kanu,tauchen,wasserball,reiten,triathlon,marathon,laufen,springen,diskuswurf,speerwurf,kugelstoßen,surfen,skateboarden,klettern,bergsteigen,curling,snowboard,american football,hockey,billard,snooker,bowling,schach,darts,parkour,kickboxen,sumo,hochsprung,weitsprung,stabhochsprung,hammerwurf,hürdenlauf,crosslauf,beachvolleyball,futsal,rafting,gleitschirmfliegen,fallschirmspringen,lacrosse,squash,polo,dreisprung,zehnkampf,siebenkampf,biathlon,rodeln,bobfahren,skispringen,langlauf,eisschnelllauf,turmspringen,wasserspringen`],
+      ["Kleidung", `hemd,t-shirt,hose,jeans,rock,kleid,jacke,mantel,pullover,strickjacke,weste,shorts,badeanzug,bikini,socke,socken,schuh,schuhe,stiefel,hausschuh,hausschuhe,sandale,sandalen,turnschuh,turnschuhe,gürtel,krawatte,fliege,hut,mütze,kappe,schal,handschuhe,handschuh,tuch,pyjama,schlafanzug,nachthemd,anzug,smoking,leggings,overall,schürze,regenmantel,kapuzenpullover,sweatshirt,unterhemd,unterwäsche,boxershorts,slip,bh,tunika,bluse,fleecejacke,trenchcoat,brautkleid,abendkleid,trainingsanzug,poloshirt,poncho,kimono,bademantel,uniform,fäustlinge,ohrenschützer,steppjacke,daunenjacke,lederjacke,windjacke,regenjacke,wanderschuhe,gummistiefel`],
+      ["Musikinstrument", `gitarre,klavier,geige,violine,cello,violoncello,flöte,klarinette,oboe,fagott,trompete,posaune,tuba,saxofon,saxophon,schlagzeug,trommel,becken,orgel,akkordeon,harfe,banjo,mandoline,ukulele,bassgitarre,e-gitarre,mundharmonika,xylofon,xylophon,marimba,kontrabass,bratsche,piccolo,synthesizer,keyboard,tamburin,triangel,dudelsack,sitar,laute,zither,cembalo,horn,waldhorn,kornett,blockflöte,okarina,didgeridoo,maracas,kastagnetten,bongo,conga,djembe,pauke,glockenspiel,kazoo,balalaika,oud,tabla,querflöte,panflöte,harmonium,celesta,flügel`],
+      ["Fahrzeug", `auto,bus,kleinbus,lkw,lastwagen,transporter,pickup,motorrad,fahrrad,roller,zug,straßenbahn,u-bahn,flugzeug,hubschrauber,schiff,fähre,boot,yacht,u-boot,ballon,heißluftballon,rakete,traktor,krankenwagen,feuerwehrauto,taxi,seilbahn,schlitten,kanu,kajak,jetski,kutsche,kran,bagger,bulldozer,gabelstapler,segway,luftkissenboot,segelflugzeug,fallschirm,oberleitungsbus,rikscha,limousine,cabrio,geländewagen,wohnwagen,wohnmobil,anhänger,mofa,schneemobil,kreuzfahrtschiff,schlepper,segelboot,ruderboot,motorboot,floß,gondel,dampfschiff,lokomotive,einschienenbahn,raumschiff,raumfähre,drohne,luftschiff,zeppelin,kombi,coupé`],
+      ["Getränk", `wasser,tee,kaffee,milch,saft,orangensaft,apfelsaft,limonade,brause,cola,bier,wein,whisky,wodka,gin,rum,weinbrand,cognac,champagner,sekt,cocktail,smoothie,milchshake,espresso,cappuccino,latte macchiato,kräutertee,grüntee,eistee,kakao,heiße schokolade,sprudel,mineralwasser,tonic,energydrink,sake,tequila,cidre,met,portwein,sherry,kefir,buttermilch,ayran,schorle,apfelschorle,punsch,eierlikör,glühwein,radler,weißbier,pils,rotwein,weißwein,roséwein,prosecco,matcha,mokka,americano,filterkaffee`],
+      ["Körperteil", `kopf,haar,haare,auge,ohr,nase,mund,zunge,zahn,zähne,lippe,gesicht,kinn,hals,schulter,arm,ellbogen,handgelenk,hand,finger,nagel,brust,rücken,magen,bauch,taille,hüfte,bein,knie,knöchel,fuß,zeh,ferse,herz,lunge,leber,niere,gehirn,knochen,muskel,haut,vene,augenbraue,wimper,stirn,wange,handfläche,daumen,wirbelsäule,rippe,bauchspeicheldrüse,milz,blase,darm,kehle,oberschenkel,wade,schienbein,schädel,kiefer,schläfe,fingerknöchel,nasenloch,augenlid,ohrläppchen,schlüsselbein,gallenblase,speiseröhre,arterie,sehne,band,knorpel`]
+    ],
+    es: [
+      ["Animal de monta", `caballo,burro,mula,camello,elefante,poni,llama,buey,cebra,avestruz,reno,yak,dromedario,semental,yegua,potro,búfalo,toro,asno,rocín,corcel,jamelgo,mulo,pony,mustang,pura sangre,caballo árabe`],
+      ["Animal", `león,tigre,elefante,jirafa,cebra,mono,gorila,chimpancé,oso,lobo,zorro,conejo,liebre,ardilla,ciervo,venado,caballo,burro,vaca,oveja,cabra,cerdo,gato,perro,ratón,rata,murciélago,erizo,tejón,nutria,lince,pantera,leopardo,guepardo,jaguar,puma,hiena,chacal,camello,llama,canguro,koala,panda,pingüino,ballena,delfín,tiburón,pulpo,medusa,tortuga,cocodrilo,serpiente,lagarto,camaleón,rana,águila,halcón,búho,cuervo,gorrión,paloma,gaviota,cigüeña,flamenco,loro,gallina,gallo,pato,ganso,pavo,pavo real,avestruz,ruiseñor,canario,salmón,trucha,atún,gamba,cangrejo,langosta,ostra,almeja,abeja,hormiga,mariposa,mosca,mosquito,cucaracha,araña,escorpión,caracol,gusano,rinoceronte,hipopótamo,morsa,foca,león marino,oso polar,alce,bisonte,mapache,mofeta,castor,topo,comadreja,hurón,ornitorrinco,armadillo,perezoso,oso hormiguero,lémur,orangután,babuino,caimán,iguana,gecko,cobra,pitón,sapo,tritón,cisne,pelícano,buitre,pájaro carpintero,colibrí,cuco,petirrojo,cordero,ternero,gatito,cachorro,hámster,gacela,antílope`],
+      ["Fruta", `manzana,pera,cereza,fresa,sandía,melón,uva,naranja,mandarina,limón,lima,pomelo,plátano,banana,piña,kiwi,granada,higo,melocotón,durazno,albaricoque,ciruela,membrillo,mora,dátil,aguacate,mango,papaya,frambuesa,arándano,grosella,nectarina,coco,lichi,maracuyá,guayaba,caqui,fruta del dragón,carambola,clementina,aceituna,tomate,níspero,chirimoya,granadilla,tamarindo,pitahaya,breva,endrina,zarzamora,uva pasa`],
+      ["Verdura", `tomate,pepino,berenjena,pimiento,zanahoria,patata,papa,cebolla,ajo,espinaca,lechuga,col,repollo,coliflor,brócoli,calabacín,calabaza,okra,judía verde,guisante,puerro,apio,rábano,remolacha,maíz,alcachofa,rúcula,perejil,eneldo,menta,espárrago,champiñón,seta,nabo,batata,boniato,col rizada,acelga,hinojo,col de bruselas,judía,lenteja,garbanzo,chalote,jengibre,chirivía,endibia,rábano picante,colinabo,lombarda,cebolleta,berro,habas`],
+      ["País", `turquía,alemania,francia,italia,españa,portugal,países bajos,holanda,bélgica,suiza,austria,grecia,bulgaria,rumanía,hungría,polonia,chequia,república checa,rusia,ucrania,georgia,azerbaiyán,armenia,irán,irak,siria,líbano,israel,jordania,arabia saudita,egipto,libia,túnez,argelia,marruecos,sudán,etiopía,kenia,nigeria,sudáfrica,china,japón,corea del sur,corea del norte,india,pakistán,afganistán,bangladés,indonesia,malasia,tailandia,vietnam,filipinas,australia,nueva zelanda,canadá,estados unidos,eeuu,méxico,brasil,argentina,chile,colombia,perú,venezuela,cuba,reino unido,inglaterra,escocia,gales,irlanda,islandia,noruega,suecia,finlandia,dinamarca,estonia,letonia,lituania,serbia,croacia,bosnia y herzegovina,albania,macedonia del norte,montenegro,eslovenia,eslovaquia,kazajistán,uzbekistán,turkmenistán,kirguistán,tayikistán,mongolia,catar,kuwait,omán,yemen,emiratos árabes unidos,baréin,nepal,sri lanka,chipre,malta,luxemburgo,mónaco,bielorrusia,moldavia,ghana,senegal,tanzania,uganda,angola,madagascar,somalia,camerún,singapur,myanmar,camboya,laos,ecuador,bolivia,uruguay,paraguay,panamá,costa rica,jamaica,haití,kosovo,andorra,liechtenstein,bután,brunéi,maldivas,república dominicana,guatemala,honduras,nicaragua,el salvador`],
+      ["Profesión", `médico,doctor,enfermero,enfermera,maestro,profesor,ingeniero,abogado,juez,fiscal,policía,soldado,bombero,piloto,capitán,conductor,chófer,cocinero,camarero,peluquero,sastre,carpintero,fontanero,electricista,agricultor,granjero,pescador,carnicero,panadero,farmacéutico,dentista,veterinario,arquitecto,pintor,escultor,escritor,poeta,periodista,reportero,actor,actriz,director,músico,cantante,deportista,entrenador,árbitro,científico,investigador,programador,desarrollador,contable,contador,banquero,secretario,traductor,intérprete,guía,azafata,jardinero,albañil,mecánico,joyero,relojero,psicólogo,nutricionista,fisioterapeuta,químico,físico,biólogo,matemático,historiador,filósofo,comadrona,partera,mensajero,cartero,guardia,conserje,limpiador,sacerdote,rabino,imán,alcalde,gobernador,notario,catedrático,astronauta,marinero,minero,buzo,arqueólogo,fotógrafo,diseñador,presentador,cámara,editor,cirujano,paramédico,cajero,soldador,tejador`],
+      ["Color", `rojo,azul,verde,amarillo,naranja,morado,violeta,rosa,marrón,café,negro,blanco,gris,azul marino,turquesa,burdeos,beige,crema,dorado,plateado,bronce,lavanda,magenta,coral,caqui,carmesí,añil,verde azulado,cian,oliva,menta,melocotón,lila,ámbar,marfil,antracita,mostaza,esmeralda,zafiro,rubí,celeste,verde oscuro,azul claro,cobre,óxido,cobalto,granate,fucsia,terracota`],
+      ["Utensilio de cocina", `olla,cazuela,sartén,cuchara,tenedor,cuchillo,plato,vaso,taza,tetera,hervidor,colador,rallador,rodillo,cucharón,espátula,batidor,batidora,licuadora,tostadora,horno,cocina,estufa,nevera,frigorífico,lavavajillas,microondas,tabla de cortar,abrelatas,abrebotellas,sacacorchos,bandeja,jarra,termo,servilleta,olla a presión,fuente,cuenco,bol,ensaladera,salero,pimentero,azucarero,robot de cocina,balanza,vaso medidor,wok,cafetera,manopla,pinzas,pelador,prensaajos,molde,mantel,delantal,esponja,mortero,cucharilla,cuchillo de pan,embudo,escurridor,exprimidor,tapadera,paellera,cazo`],
+      ["Deporte", `fútbol,baloncesto,voleibol,balonmano,tenis,tenis de mesa,bádminton,natación,atletismo,gimnasia,lucha,boxeo,judo,kárate,taekwondo,esgrima,tiro con arco,tiro,halterofilia,ciclismo,esquí,patinaje,hockey sobre hielo,golf,rugby,béisbol,críquet,vela,remo,piragüismo,buceo,waterpolo,equitación,triatlón,maratón,carrera,salto,lanzamiento de disco,lanzamiento de jabalina,lanzamiento de peso,surf,skateboarding,escalada,montañismo,curling,snowboard,fútbol americano,hockey,billar,snooker,bolos,ajedrez,dardos,parkour,kickboxing,sumo,salto de altura,salto de longitud,salto con pértiga,lanzamiento de martillo,vallas,campo a través,voley playa,futsal,rafting,parapente,paracaidismo,lacrosse,squash,polo,triple salto,decatlón,heptatlón,biatlón,luge,bobsleigh,esquí de fondo,saltos de trampolín,pádel,pelota vasca,petanca`],
+      ["Prenda de ropa", `camisa,camiseta,pantalón,pantalones,vaqueros,jeans,falda,vestido,chaqueta,abrigo,jersey,suéter,cárdigan,chaleco,pantalón corto,bañador,bikini,calcetín,calcetines,zapato,zapatos,bota,botas,zapatilla,zapatillas,sandalia,sandalias,cinturón,corbata,pajarita,sombrero,gorro,gorra,bufanda,guantes,guante,chal,pijama,camisón,traje,esmoquin,mallas,mono,delantal,impermeable,sudadera,camiseta de tirantes,ropa interior,calzoncillos,bragas,sujetador,túnica,blusa,forro polar,gabardina,vestido de novia,vestido de noche,chándal,polo,poncho,kimono,bata,albornoz,uniforme,manoplas,orejeras,anorak,plumas,cazadora,parka,mocasines,tacones,chancletas,alpargatas`],
+      ["Instrumento musical", `guitarra,piano,violín,violonchelo,chelo,flauta,clarinete,oboe,fagot,trompeta,trombón,tuba,saxofón,batería,tambor,platillos,órgano,acordeón,arpa,banjo,mandolina,ukelele,bajo,guitarra eléctrica,armónica,xilófono,marimba,contrabajo,viola,flautín,sintetizador,teclado,pandereta,triángulo,gaita,sitar,laúd,cítara,clavicémbalo,trompa,corneta,flauta dulce,ocarina,didgeridoo,maracas,castañuelas,bongó,conga,yembé,timbal,glockenspiel,kazoo,balalaica,tabla,charango,bandurria,cajón,zampoña,quena,vihuela`],
+      ["Vehículo", `coche,carro,auto,automóvil,autobús,bus,minibús,camión,furgoneta,camioneta,moto,motocicleta,bicicleta,bici,patinete,tren,tranvía,metro,avión,helicóptero,barco,buque,ferri,bote,barca,yate,submarino,globo,globo aerostático,cohete,tractor,ambulancia,camión de bomberos,taxi,teleférico,trineo,canoa,kayak,moto de agua,carruaje,grúa,excavadora,bulldozer,carretilla elevadora,segway,aerodeslizador,planeador,paracaídas,trolebús,rickshaw,limusina,descapotable,todoterreno,caravana,remolque,ciclomotor,moto de nieve,crucero,remolcador,velero,lancha,balsa,góndola,locomotora,monorraíl,nave espacial,transbordador,dron,dirigible,zepelín,berlina,familiar,coupé`],
+      ["Bebida", `agua,té,café,leche,zumo,jugo,zumo de naranja,limonada,refresco,gaseosa,cola,cerveza,vino,whisky,vodka,ginebra,ron,brandy,coñac,champán,cava,cóctel,batido,espresso,capuchino,café con leche,infusión,té verde,té helado,chocolate caliente,cacao,agua con gas,agua mineral,tónica,bebida energética,sake,tequila,sidra,hidromiel,oporto,jerez,kéfir,horchata,sangría,ponche,vermut,mojito,licor,anís,pacharán,tinto,blanco,rosado,mate,matcha,moka,americano,carajillo`],
+      ["Parte del cuerpo", `cabeza,pelo,cabello,ojo,oreja,nariz,boca,lengua,diente,dientes,labio,cara,barbilla,cuello,hombro,brazo,codo,muñeca,mano,dedo,uña,pecho,espalda,estómago,barriga,vientre,cintura,cadera,pierna,rodilla,tobillo,pie,dedo del pie,talón,corazón,pulmón,hígado,riñón,cerebro,hueso,músculo,piel,vena,ceja,pestaña,frente,mejilla,palma,pulgar,columna,costilla,páncreas,bazo,vejiga,intestino,garganta,muslo,pantorrilla,espinilla,cráneo,mandíbula,sien,nudillo,fosa nasal,párpado,lóbulo,clavícula,vesícula,esófago,arteria,tendón,ligamento,cartílago`]
+    ],
+    fr: [
+      ["Monture", `cheval,âne,mule,chameau,éléphant,poney,lama,bœuf,zèbre,autruche,renne,yack,dromadaire,étalon,jument,poulain,buffle,taureau,mulet,bardot,mustang,pur-sang,percheron,camargue,destrier,coursier,canasson,haridelle`],
+      ["Animal", `lion,tigre,éléphant,girafe,zèbre,singe,gorille,chimpanzé,ours,loup,renard,lapin,lièvre,écureuil,cerf,chevreuil,cheval,âne,vache,mouton,chèvre,cochon,porc,chat,chien,souris,rat,chauve-souris,hérisson,blaireau,loutre,lynx,panthère,léopard,guépard,jaguar,puma,hyène,chacal,chameau,lama,kangourou,koala,panda,pingouin,manchot,baleine,dauphin,requin,pieuvre,méduse,tortue,crocodile,serpent,lézard,caméléon,grenouille,aigle,faucon,hibou,chouette,corbeau,corneille,moineau,pigeon,mouette,cigogne,flamant rose,perroquet,poule,coq,canard,oie,dinde,paon,autruche,rossignol,canari,saumon,truite,thon,crevette,crabe,homard,huître,moule,abeille,fourmi,papillon,mouche,moustique,cafard,araignée,scorpion,escargot,ver,rhinocéros,hippopotame,morse,phoque,otarie,ours polaire,élan,bison,raton laveur,mouffette,castor,taupe,belette,furet,ornithorynque,tatou,paresseux,fourmilier,lémurien,orang-outan,babouin,alligator,iguane,gecko,cobra,python,crapaud,triton,cygne,pélican,vautour,pic,colibri,coucou,rouge-gorge,agneau,veau,chaton,chiot,hamster,gazelle,antilope`],
+      ["Fruit", `pomme,poire,cerise,fraise,pastèque,melon,raisin,orange,mandarine,citron,citron vert,pamplemousse,banane,ananas,kiwi,grenade,figue,pêche,abricot,prune,coing,mûre,datte,avocat,mangue,papaye,framboise,myrtille,groseille,nectarine,noix de coco,litchi,fruit de la passion,goyave,kaki,fruit du dragon,carambole,clémentine,olive,tomate,nèfle,cassis,airelle,cranberry,physalis,mirabelle,reine-claude,griotte,brugnon,kumquat,pomelo`],
+      ["Légume", `tomate,concombre,aubergine,poivron,carotte,pomme de terre,oignon,ail,épinard,laitue,salade,chou,chou-fleur,brocoli,courgette,citrouille,potiron,courge,gombo,haricot vert,petit pois,poireau,céleri,radis,betterave,maïs,artichaut,roquette,persil,aneth,menthe,asperge,champignon,navet,patate douce,chou frisé,blette,fenouil,chou de bruxelles,haricot,lentille,pois chiche,échalote,gingembre,panais,endive,raifort,chou-rave,chou rouge,ciboulette,cresson,fève,topinambour,salsifis,rutabaga,mâche,oseille`],
+      ["Pays", `turquie,allemagne,france,italie,espagne,portugal,pays-bas,belgique,suisse,autriche,grèce,bulgarie,roumanie,hongrie,pologne,tchéquie,république tchèque,russie,ukraine,géorgie,azerbaïdjan,arménie,iran,irak,syrie,liban,israël,jordanie,arabie saoudite,égypte,libye,tunisie,algérie,maroc,soudan,éthiopie,kenya,nigéria,afrique du sud,chine,japon,corée du sud,corée du nord,inde,pakistan,afghanistan,bangladesh,indonésie,malaisie,thaïlande,vietnam,philippines,australie,nouvelle-zélande,canada,états-unis,mexique,brésil,argentine,chili,colombie,pérou,venezuela,cuba,royaume-uni,angleterre,écosse,pays de galles,irlande,islande,norvège,suède,finlande,danemark,estonie,lettonie,lituanie,serbie,croatie,bosnie-herzégovine,albanie,macédoine du nord,monténégro,slovénie,slovaquie,kazakhstan,ouzbékistan,turkménistan,kirghizistan,tadjikistan,mongolie,qatar,koweït,oman,yémen,émirats arabes unis,bahreïn,népal,sri lanka,chypre,malte,luxembourg,monaco,biélorussie,moldavie,ghana,sénégal,tanzanie,ouganda,angola,madagascar,somalie,cameroun,singapour,birmanie,myanmar,cambodge,laos,équateur,bolivie,uruguay,paraguay,panama,costa rica,jamaïque,haïti,kosovo,andorre,liechtenstein,bhoutan,brunei,maldives,côte d'ivoire,mali,niger,tchad,congo,gabon,mozambique,zambie,zimbabwe,namibie,botswana`],
+      ["Métier", `médecin,docteur,infirmier,infirmière,enseignant,professeur,instituteur,ingénieur,avocat,juge,procureur,policier,soldat,pompier,pilote,capitaine,chauffeur,cuisinier,serveur,coiffeur,tailleur,menuisier,plombier,électricien,agriculteur,fermier,pêcheur,boucher,boulanger,pharmacien,dentiste,vétérinaire,architecte,peintre,sculpteur,écrivain,poète,journaliste,reporter,acteur,actrice,réalisateur,musicien,chanteur,sportif,entraîneur,arbitre,scientifique,chercheur,programmeur,développeur,comptable,banquier,secrétaire,traducteur,interprète,guide,hôtesse de l'air,jardinier,maçon,mécanicien,bijoutier,horloger,psychologue,diététicien,kinésithérapeute,chimiste,physicien,biologiste,mathématicien,historien,philosophe,sage-femme,coursier,facteur,gardien,concierge,agent d'entretien,prêtre,rabbin,imam,maire,gouverneur,notaire,astronaute,marin,mineur,plongeur,archéologue,photographe,designer,présentateur,cadreur,éditeur,chirurgien,ambulancier,caissier,soudeur,couvreur`],
+      ["Couleur", `rouge,bleu,vert,jaune,orange,violet,mauve,rose,marron,brun,noir,blanc,gris,bleu marine,turquoise,bordeaux,beige,crème,doré,argenté,bronze,lavande,magenta,corail,kaki,carmin,indigo,sarcelle,cyan,olive,menthe,pêche,lilas,ambre,ivoire,anthracite,moutarde,émeraude,saphir,rubis,azur,cuivre,rouille,cobalt,fuchsia,terre cuite,bleu ciel,vert foncé,bleu clair`],
+      ["Ustensile de cuisine", `casserole,poêle,cuillère,fourchette,couteau,assiette,verre,tasse,mug,théière,bouilloire,passoire,râpe,rouleau à pâtisserie,louche,spatule,fouet,mixeur,grille-pain,four,cuisinière,plaque de cuisson,réfrigérateur,frigo,lave-vaisselle,micro-ondes,planche à découper,ouvre-boîte,décapsuleur,tire-bouchon,plateau,carafe,pichet,thermos,serviette,cocotte-minute,cocotte,saladier,bol,salière,poivrière,sucrier,robot de cuisine,balance,verre doseur,wok,cafetière,manique,pince,éplucheur,presse-ail,moule,nappe,tablier,éponge,mortier,pilon,petite cuillère,cuillère à soupe,couteau à pain,hachoir,entonnoir,mandoline,presse-agrumes,égouttoir,couvercle,marmite,faitout,sauteuse`],
+      ["Sport", `football,basketball,basket,volleyball,volley,handball,tennis,tennis de table,badminton,natation,athlétisme,gymnastique,lutte,boxe,judo,karaté,taekwondo,escrime,tir à l'arc,tir,haltérophilie,cyclisme,ski,patinage,hockey sur glace,golf,rugby,baseball,cricket,voile,aviron,canoë,plongée,water-polo,équitation,triathlon,marathon,course,saut,lancer du disque,lancer du javelot,lancer du poids,surf,skateboard,escalade,alpinisme,curling,snowboard,football américain,hockey,billard,snooker,bowling,échecs,fléchettes,parkour,kickboxing,sumo,saut en hauteur,saut en longueur,saut à la perche,lancer du marteau,haies,cross,beach-volley,futsal,rafting,parapente,parachutisme,lacrosse,squash,polo,triple saut,décathlon,heptathlon,biathlon,luge,bobsleigh,ski de fond,pétanque,pelote basque`],
+      ["Vêtement", `chemise,t-shirt,pantalon,jean,jupe,robe,veste,manteau,pull,gilet,short,maillot de bain,bikini,chaussette,chaussettes,chaussure,chaussures,botte,bottes,pantoufle,pantoufles,sandale,sandales,basket,baskets,ceinture,cravate,nœud papillon,chapeau,bonnet,casquette,écharpe,gants,gant,châle,pyjama,chemise de nuit,costume,smoking,legging,combinaison,tablier,imperméable,sweat,débardeur,sous-vêtements,caleçon,culotte,soutien-gorge,tunique,chemisier,polaire,trench,robe de mariée,robe de soirée,survêtement,polo,poncho,kimono,peignoir,uniforme,moufles,cache-oreilles,doudoune,blouson,parka,mocassins,talons,tongs,espadrilles,anorak,foulard,étole`],
+      ["Instrument de musique", `guitare,piano,violon,violoncelle,flûte,clarinette,hautbois,basson,trompette,trombone,tuba,saxophone,batterie,tambour,cymbale,orgue,accordéon,harpe,banjo,mandoline,ukulélé,basse,guitare électrique,harmonica,xylophone,marimba,contrebasse,alto,piccolo,synthétiseur,clavier,tambourin,triangle,cornemuse,sitar,luth,cithare,clavecin,cor,cor d'harmonie,cornet,flûte à bec,ocarina,didgeridoo,maracas,castagnettes,bongo,conga,djembé,timbale,glockenspiel,kazoo,balalaïka,oud,tabla,vielle,serpent,saxhorn,bugle,célesta,harmonium`],
+      ["Véhicule", `voiture,auto,automobile,bus,autobus,autocar,minibus,camion,camionnette,fourgon,moto,motocyclette,vélo,bicyclette,trottinette,scooter,train,tramway,métro,avion,hélicoptère,bateau,navire,ferry,yacht,sous-marin,ballon,montgolfière,fusée,tracteur,ambulance,camion de pompiers,taxi,téléphérique,traîneau,canoë,kayak,jet-ski,calèche,grue,excavatrice,bulldozer,chariot élévateur,segway,aéroglisseur,planeur,parachute,trolleybus,pousse-pousse,limousine,cabriolet,tout-terrain,caravane,remorque,mobylette,motoneige,paquebot,remorqueur,voilier,barque,vedette,radeau,gondole,locomotive,monorail,vaisseau spatial,navette spatiale,drone,dirigeable,zeppelin,berline,break,coupé,tuk-tuk`],
+      ["Boisson", `eau,thé,café,lait,jus,jus d'orange,jus de pomme,limonade,soda,cola,bière,vin,whisky,vodka,gin,rhum,brandy,cognac,champagne,cocktail,smoothie,milkshake,expresso,cappuccino,latte,tisane,thé vert,thé glacé,chocolat chaud,cacao,eau gazeuse,eau minérale,tonic,boisson énergisante,saké,tequila,cidre,hydromel,porto,xérès,kéfir,ayran,sirop,punch,vin chaud,pastis,kir,rosé,rouge,blanc,prosecco,matcha,moka,américano,infusion,eau du robinet,menthe à l'eau,citron pressé,orangina`],
+      ["Partie du corps", `tête,cheveux,œil,yeux,oreille,nez,bouche,langue,dent,dents,lèvre,visage,menton,cou,épaule,bras,coude,poignet,main,doigt,ongle,poitrine,dos,estomac,ventre,taille,hanche,jambe,genou,cheville,pied,orteil,talon,cœur,poumon,foie,rein,cerveau,os,muscle,peau,veine,sourcil,cil,front,joue,paume,pouce,colonne vertébrale,côte,pancréas,rate,vessie,intestin,gorge,cuisse,mollet,tibia,crâne,mâchoire,tempe,articulation,narine,paupière,lobe,clavicule,vésicule,œsophage,artère,tendon,ligament,cartilage`]
+    ]
+  };
+
+  /* ---------- Yardımcılar ---------- */
+  var S = {
+    screen: 'home', mode: 'local', lang: 'tr', names: [], rounds: 8, time: 0,
+    players: [], round: 0, order: [], turn: 0, answers: [],
+    dbState: 'pending', db: null, uid: null, code: '', ocode: '',
+    room: null, rp: [], ra: [], sent: -1, msg: '', lastKey: '', unsub: [], busy: false, hostTo: null, hostTk: ''
+  };
+  var PREF = { lang: 'tr', names: null, rounds: 8, time: 0, music: true, fx: true, oname: '' };
+
+  function t(k, v) {
+    var s = (TX[S.lang] && TX[S.lang][k]) || TX.en[k] || k;
+    if (v) { for (var x in v) { s = s.split('{' + x + '}').join(v[x]); } }
+    return s;
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function norm(s, l) { return String(s).normalize('NFC').trim().replace(/\s+/g, ' ').toLocaleLowerCase(LOC[l || S.lang]); }
+  function fold(s, l) {
+    return norm(s, l).replace(/ı/g, 'i').replace(/ß/g, 'ss').replace(/œ/g, 'oe').replace(/æ/g, 'ae')
+      .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+  }
+  function letters(s) { return (String(s).match(/\p{L}/gu) || []).length; }
+  function upc(c) { return c === 'ß' ? 'ß' : c.toLocaleUpperCase(LOC[S.lang]); }
+  function tiles(word, cls) {
+    return '<span class="word ' + cls + '" aria-label="' + esc(word) + '">' +
+      Array.from(word).map(function (c) { return /\p{L}/u.test(c) ? '<i aria-hidden="true">' + esc(upc(c)) + '</i>' : '<b></b>'; }).join('') + '</span>';
+  }
+  function cleanName(s) { return String(s || '').replace(/\s+/g, ' ').trim().slice(0, 16); }
+
+  LANGS.forEach(function (l) {
+    CAT[l] = CAT[l].map(function (c) {
+      var o = { n: c[0], map: {} };
+      c[1].split(',').forEach(function (w) { var x = norm(w, l); if (x) o.map[fold(x, l)] = x; });
+      return o;
+    });
+  });
+  function cats() { return CAT[S.lang]; }
+
+  function loadPref() {
+    try {
+      var d = JSON.parse(localStorage.getItem('lexora') || 'null');
+      if (d) {
+        if (LANGS.indexOf(d.lang) > -1) PREF.lang = d.lang;
+        if (Array.isArray(d.names) && d.names.length >= 2) PREF.names = d.names.slice(0, 6).map(function (n) { return cleanName(n); });
+        if ([5, 8, 12].indexOf(d.rounds) > -1) PREF.rounds = d.rounds;
+        if ([0, 15, 30].indexOf(d.time) > -1) PREF.time = d.time;
+        if (typeof d.music === 'boolean') PREF.music = d.music;
+        if (typeof d.fx === 'boolean') PREF.fx = d.fx;
+        if (typeof d.oname === 'string') PREF.oname = cleanName(d.oname);
+      }
+    } catch (e) {}
+  }
+  function savePref() {
+    PREF.lang = S.lang; PREF.names = S.names; PREF.rounds = S.rounds; PREF.time = S.time;
+    try { localStorage.setItem('lexora', JSON.stringify(PREF)); } catch (e) {}
+  }
+  function defName(i) { return t('pl') + ' ' + (i + 1); }
+  function isDef(n) { return /^(Oyuncu|Player|Spieler|Jugador|Joueur) \d$/.test(n.trim()); }
+
+  /* ---------- Ses: müzik ve efektler (Web Audio, dosya yok) ---------- */
+  var AU = { ctx: null, master: null, fxg: null, timer: null, step: 0, next: 0, playing: false };
+  function auInit() {
+    if (AU.ctx) return true;
+    try {
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return false;
+      AU.ctx = new C();
+      AU.master = AU.ctx.createGain(); AU.master.gain.value = 0; AU.master.connect(AU.ctx.destination);
+      AU.fxg = AU.ctx.createGain(); AU.fxg.gain.value = 0.5; AU.fxg.connect(AU.ctx.destination);
+      return true;
+    } catch (e) { return false; }
+  }
+  function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function tone(dest, when, m, dur, type, vol) {
+    var o = AU.ctx.createOscillator(), g = AU.ctx.createGain();
+    o.type = type; o.frequency.value = mtof(m);
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(vol, when + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    o.connect(g); g.connect(dest); o.start(when); o.stop(when + dur + 0.05);
+  }
+  var PROG = [[57, 60, 64], [53, 57, 60], [48, 55, 64], [55, 59, 62]];
+  var ARP = [0, 1, 2, 1, 2, 1, 2, 1];
+  function sched() {
+    var c = AU.ctx, eighth = 60 / 88 / 2;
+    while (AU.next < c.currentTime + 0.5) {
+      var s = AU.step % 32, bar = Math.floor(s / 8), pos = s % 8, ch = PROG[bar];
+      if (pos === 0) {
+        tone(AU.master, AU.next, ch[0] - 12, eighth * 7, 'sine', 0.38);
+        ch.forEach(function (m) { tone(AU.master, AU.next, m, eighth * 7.5, 'triangle', 0.07); });
+      }
+      tone(AU.master, AU.next, ch[ARP[pos]] + 12, eighth * 1.6, 'triangle', 0.11);
+      if (pos === 4 && bar % 2 === 1) tone(AU.master, AU.next, ch[2] + 24, eighth * 2, 'sine', 0.05);
+      AU.step++; AU.next += eighth;
+    }
+  }
+  function musicOn() {
+    if (!auInit()) return;
+    AU.ctx.resume();
+    if (AU.playing) return;
+    AU.playing = true; AU.next = AU.ctx.currentTime + 0.1; AU.step = 0;
+    AU.master.gain.cancelScheduledValues(AU.ctx.currentTime);
+    AU.master.gain.setTargetAtTime(0.35, AU.ctx.currentTime, 0.4);
+    AU.timer = setInterval(sched, 120);
+  }
+  function musicOff() {
+    if (!AU.ctx || !AU.playing) return;
+    AU.playing = false;
+    AU.master.gain.setTargetAtTime(0, AU.ctx.currentTime, 0.15);
+    var tm = AU.timer; AU.timer = null;
+    setTimeout(function () { clearInterval(tm); }, 700);
+  }
+  function fx(kind) {
+    if (!PREF.fx || !auInit()) return;
+    AU.ctx.resume();
+    var n = AU.ctx.currentTime;
+    if (kind === 'tap') tone(AU.fxg, n, 84, 0.09, 'sine', 0.25);
+    else if (kind === 'send') { tone(AU.fxg, n, 76, 0.12, 'triangle', 0.3); tone(AU.fxg, n + 0.09, 83, 0.16, 'triangle', 0.3); }
+    else if (kind === 'win') { [72, 76, 79, 84].forEach(function (m, i) { tone(AU.fxg, n + i * 0.11, m, 0.3, 'triangle', 0.3); }); }
+    else if (kind === 'none') { tone(AU.fxg, n, 52, 0.25, 'sine', 0.3); }
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (!AU.ctx) return;
+    if (document.hidden) AU.ctx.suspend(); else if (AU.playing || PREF.fx) AU.ctx.resume();
+  });
+  document.addEventListener('pointerdown', function () { if (PREF.music) musicOn(); }, { once: true });
+
+  /* ---------- Süre ---------- */
+  var tick = null;
+  function stopTimer() { if (tick) { clearInterval(tick); tick = null; } }
+  function startTimer(sec) {
+    stopTimer();
+    var end = Date.now() + sec * 1000;
+    tick = setInterval(function () {
+      var left = Math.max(0, end - Date.now());
+      var bar = document.getElementById('bar'), lab = document.getElementById('left'), box = document.getElementById('barbox');
+      if (bar) bar.style.transform = 'scaleX(' + (left / (sec * 1000)) + ')';
+      if (lab) lab.textContent = Math.ceil(left / 1000) + ' ' + t('sec');
+      if (box) box.className = 'bar' + (left < 6000 ? ' low' : '');
+      if (left <= 0) { stopTimer(); submit(false); }
+    }, 200);
+  }
+
+  /* ---------- Ortak görünümler ---------- */
+  var ICON_NOTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+  var ICON_SPK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>';
+
+  function hud(brand) {
+    return '<div class="hud">' + (brand ? '<span class="brand">LEXORA</span>' : '<span></span>') + '<div class="hudr">' +
+      '<button type="button" class="chip" data-act="music" aria-pressed="' + PREF.music + '">' + ICON_NOTE + '<span>' + esc(t('music')) + '</span></button>' +
+      '<button type="button" class="chip" data-act="fx" aria-pressed="' + PREF.fx + '">' + ICON_SPK + '<span>' + esc(t('fx')) + '</span></button></div></div>';
+  }
+  function syncHud() {
+    [].forEach.call(document.querySelectorAll('[data-act="music"]'), function (b) { b.setAttribute('aria-pressed', String(PREF.music)); });
+    [].forEach.call(document.querySelectorAll('[data-act="fx"]'), function (b) { b.setAttribute('aria-pressed', String(PREF.fx)); });
+  }
+  function wordmark() {
+    var w = 'LEXORA', a = [139, 92, 246], b = [34, 211, 238];
+    return '<h1 class="mark" aria-label="LEXORA">' + Array.from(w).map(function (c, i) {
+      var k = i / (w.length - 1);
+      var rgb = a.map(function (v, j) { return Math.round(v + (b[j] - v) * k); });
+      return '<i aria-hidden="true" style="background:rgb(' + rgb.join(',') + ')">' + c + '</i>';
+    }).join('') + '</h1>';
+  }
+  function langSel() {
+    return '<div class="stack"><label class="lab" for="lang">' + esc(t('language')) + '</label><select id="lang" class="field">' +
+      LANGS.map(function (l) { return '<option value="' + l + '"' + (l === S.lang ? ' selected' : '') + '>' + LNAME[l] + '</option>'; }).join('') + '</select></div>';
+  }
+  function seg(act, opts, cur) {
+    return '<div class="seg" role="group">' + opts.map(function (o) {
+      return '<button type="button" data-act="' + act + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + esc(o[1]) + '</button>';
+    }).join('') + '</div>';
+  }
+  function menuBtn(act, title, hint, primary) {
+    var dis = (act === 'ocreate' || act === 'ojoin') && S.dbState !== 'ready';
+    return '<button type="button" class="menu' + (primary ? ' primary' : '') + '" data-act="' + act + '"' + (dis ? ' aria-disabled="true"' : '') + '><strong>' + esc(title) + '</strong><span>' + esc(hint) + '</span></button>';
+  }
+  function rules() {
+    return '<details class="card"><summary>' + esc(t('how')) + '</summary><ol><li>' + esc(t('r1')) + '</li><li>' + esc(t('r2')) + '</li><li>' + esc(t('r3')) + '</li><li>' + esc(t('r4')) + '</li></ol></details>';
+  }
+  function msgHtml() { var m = S.msg; return m ? '<p class="note bad" role="alert">' + esc(m) + '</p>' : ''; }
+  function inputBlock(cat, label) {
+    return '<section class="card"><p class="eyebrow">' + esc(t('catfor', { n: label })) + '</p><h2 class="cat">' + esc(cat.n) + '</h2></section>' +
+      '<div class="stack"><label class="lab" for="ans">' + esc(t('answer')) + '</label>' +
+      '<input class="field" id="ans" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" maxlength="40">' +
+      '<div class="row"><span id="cnt">0 ' + esc(t('letters')) + '</span>' + (curTime() ? '<span id="left">' + curTime() + ' ' + esc(t('sec')) + '</span>' : '') + '</div>' +
+      (curTime() ? '<div class="bar" id="barbox"><div id="bar"></div></div>' : '') + '</div>' +
+      '<button type="button" class="btn" data-act="submit">' + esc(t('send')) + '</button>' +
+      '<button type="button" class="btn ghost" data-act="skip">' + esc(t('skip')) + '</button>';
+  }
+  function curTime() { return S.mode === 'online' ? ((S.room && S.room.time) || 0) : S.time; }
+
+  /* ---------- Sonuç hesabı (yerel ve online ortak) ---------- */
+  function evalEntries(cat, entries) {
+    var rows = entries.map(function (e, i) {
+      var canon = cat.map[fold(e.raw)] || null;
+      var shown = canon || norm(e.raw);
+      var len = letters(shown);
+      if (!len) { shown = ''; canon = null; }
+      var ok = len > 0 && ((e.ovr === true || e.ovr === false) ? e.ovr : !!canon);
+      return { uid: e.uid, name: e.name, shown: shown, len: len, inList: !!canon, ok: ok, idx: i, win: false };
+    });
+    var best = 0;
+    rows.forEach(function (r) { if (r.ok && r.len > best) best = r.len; });
+    rows.forEach(function (r) { r.win = best > 0 && r.ok && r.len === best; });
+    return { rows: rows, best: best };
+  }
+  function resultCards(res, tact) {
+    var key = function (r) { return r.len === 0 ? -2 : (r.ok ? r.len : -1); };
+    return res.rows.slice().sort(function (a, b) { return key(b) - key(a) || a.idx - b.idx; }).map(function (r) {
+      var cls = r.win ? 'win' : (r.ok ? '' : 'out');
+      var st = r.ok ? (r.inList ? ['s-ok', t('inlist')] : ['s-ok', t('okman')]) : (r.inList ? ['s-bad', t('invalid')] : ['s-warn', t('notin')]);
+      return '<article class="res' + (r.win ? ' won' : '') + '"><div class="rhead"><strong>' + esc(r.name) + '</strong>' + (r.win ? '<span class="badge">+1</span>' : '') + '</div>' +
+        (r.len ? tiles(r.shown, cls) + '<div class="rfoot"><span class="' + st[0] + '">' + r.len + ' ' + esc(t('letters')) + ' · ' + esc(st[1]) + '</span>' +
+          (tact ? '<button type="button" class="link" data-act="' + tact + '" data-u="' + esc(r.uid) + '">' + esc(r.ok ? t('markbad') : t('markok')) + '</button>' : '') + '</div>'
+          : '<p class="muted">' + esc(t('passed')) + '</p>') + '</article>';
+    }).join('');
+  }
+  function verdictText(res) {
+    if (res.best === 0) return t('nobody');
+    var w = res.rows.filter(function (r) { return r.win; }).map(function (r) { return esc(r.name); });
+    return t('best', { n: res.best, w: w.join(' · ') });
+  }
+  function boardHtml(list) {
+    return '<ul class="board">' + list.map(function (p) {
+      return '<li><span class="who">' + esc(p.name) + (p.tag ? '<span class="tag">' + esc(p.tag) + '</span>' : '') + '</span><span class="pts">' + p.score + (p.add ? ' <em>+1</em>' : '') + '</span></li>';
+    }).join('') + '</ul>';
+  }
+  function finalHtml(list) {
+    var ps = list.slice().sort(function (a, b) { return b.score - a.score; });
+    var top = ps[0].score;
+    var win = ps.filter(function (p) { return p.score === top; }).map(function (p) { return esc(p.name); });
+    var rank = 0, prev = null;
+    var rows = ps.map(function (p, i) {
+      if (p.score !== prev) { rank = i + 1; prev = p.score; }
+      return '<li><span class="who"><span class="rank' + (p.score === top ? ' first' : '') + '">' + rank + '</span>' + esc(p.name) + '</span><span class="pts">' + p.score + '</span></li>';
+    }).join('');
+    return '<p class="eyebrow">' + esc(t('over')) + '</p><h2 class="cat">' + (win.length > 1 ? t('tie', { w: win.join(', ') }) : t('winner', { w: win[0] })) + '</h2>' +
+      '<section class="card"><ul class="board">' + rows + '</ul></section>';
+  }
+
+  /* ---------- Yerel oyun görünümleri ---------- */
+  function homeView() {
+    var st = S.dbState === 'ready' ? t('dbready') : S.dbState === 'off' ? t('onlineoff') : S.dbState === 'nowrite' ? t('nowrite') : t('connecting');
+    return hud(false) + wordmark() + '<p class="lead">' + esc(t('tag')) + '</p>' + langSel() +
+      '<section class="stack">' + menuBtn('local', t('local'), t('localh'), true) + menuBtn('ocreate', t('online'), t('onlineh')) + menuBtn('ojoin', t('joinroom'), t('joinh')) +
+      '<p class="note' + (S.dbState === 'ready' ? ' ok' : '') + '" role="status">' + esc(st) + '</p></section>' + rules();
+  }
+  function settingsHtml() {
+    return '<section class="stack"><h2 class="lab">' + esc(t('rounds')) + '</h2>' + seg('rounds', [[5, '5'], [8, '8'], [12, '12']], S.rounds) + '</section>' +
+      '<section class="stack"><h2 class="lab">' + esc(t('timer')) + '</h2>' + seg('time', [[0, t('nolimit')], [15, '15 ' + t('sec')], [30, '30 ' + t('sec')]], S.time) + '</section>';
+  }
+  function setupView() {
+    var rows = S.names.map(function (n, i) {
+      return '<div class="prow"><input class="field pname" id="pn' + i + '" value="' + esc(n) + '" maxlength="16" autocomplete="off" aria-label="' + (i + 1) + '">' +
+        (S.names.length > 2 ? '<button type="button" class="icon" data-act="remove" data-i="' + i + '" aria-label="×">×</button>' : '') + '</div>';
+    }).join('');
+    return hud(true) + '<h2>' + esc(t('setup')) + '</h2><section class="stack"><h3 class="lab">' + esc(t('players')) + '</h3>' + rows +
+      (S.names.length < 6 ? '<button type="button" class="btn ghost" data-act="add">' + esc(t('add')) + '</button>' : '') + '</section>' + settingsHtml() +
+      '<button type="button" class="btn" data-act="start">' + esc(t('start')) + '</button><button type="button" class="btn ghost" data-act="home">' + esc(t('back')) + '</button>';
+  }
+  function topbar() {
+    return '<div class="top"><span>' + esc(t('round', { a: S.round + 1, b: S.rounds })) + '</span><span>' + esc(t('nplayers', { n: S.players.length })) + '</span></div>';
+  }
+  function passView() {
+    return hud(true) + topbar() + '<section class="card center"><p class="eyebrow">' + esc(t('turn')) + '</p><h2 class="name">' + esc(S.players[S.turn].name) + '</h2>' +
+      '<p class="muted">' + esc(t('takephone')) + '</p></section><button type="button" class="btn" data-act="ready">' + esc(t('ready')) + '</button>';
+  }
+  function inputView() {
+    return hud(true) + topbar() + inputBlock(cats()[S.order[S.round]], S.players[S.turn].name);
+  }
+  function localEntries() {
+    return S.answers.map(function (a, i) { return { uid: String(i), name: S.players[i].name, raw: a.raw, ovr: a.ovr }; });
+  }
+  function revealView() {
+    var res = evalEntries(cats()[S.order[S.round]], localEntries());
+    var list = S.players.map(function (p, i) { return { name: p.name, score: p.score + (res.rows[i].win ? 1 : 0), add: res.rows[i].win }; });
+    var last = S.round + 1 >= S.rounds;
+    return hud(true) + '<div class="top"><span>' + esc(t('round', { a: S.round + 1, b: S.rounds })) + '</span><span>' + esc(cats()[S.order[S.round]].n) + '</span></div>' +
+      '<p class="verdict">' + verdictText(res) + '</p><section class="stack">' + resultCards(res, 'toggle') + '</section>' +
+      '<section class="card"><h3 class="lab">' + esc(t('board')) + '</h3>' + boardHtml(list) + '</section>' +
+      '<button type="button" class="btn" data-act="next">' + esc(last ? t('seeres') : t('nextr')) + '</button>';
+  }
+  function finalView() {
+    return hud(true) + finalHtml(S.players.map(function (p) { return { name: p.name, score: p.score }; })) +
+      '<button type="button" class="btn" data-act="again">' + esc(t('again')) + '</button><button type="button" class="btn ghost" data-act="home">' + esc(t('home')) + '</button>';
+  }
+
+  /* ---------- Online görünümler ---------- */
+  function ocreateView() {
+    return hud(true) + '<h2>' + esc(t('online')) + '</h2>' + msgHtml() +
+      '<div class="stack"><label class="lab" for="oname">' + esc(t('yourname')) + '</label><input class="field" id="oname" maxlength="16" autocomplete="off" value="' + esc(PREF.oname) + '"></div>' +
+      langSel() + settingsHtml() +
+      '<button type="button" class="btn" data-act="ocgo">' + esc(t('online')) + '</button><button type="button" class="btn ghost" data-act="home">' + esc(t('back')) + '</button>';
+  }
+  function ojoinView() {
+    return hud(true) + '<h2>' + esc(t('joinroom')) + '</h2>' + msgHtml() +
+      '<div class="stack"><label class="lab" for="oname">' + esc(t('yourname')) + '</label><input class="field" id="oname" maxlength="16" autocomplete="off" value="' + esc(PREF.oname) + '"></div>' +
+      '<div class="stack"><label class="lab" for="ocode">' + esc(t('code')) + '</label><input class="field" id="ocode" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' + esc(S.ocode) + '"></div>' +
+      '<button type="button" class="btn" data-act="ojgo">' + esc(t('enter')) + '</button><button type="button" class="btn ghost" data-act="home">' + esc(t('back')) + '</button>';
+  }
+  function isHost() { return !!S.room && S.room.host === S.uid; }
+  function findAns(round, uid) {
+    for (var i = 0; i < S.ra.length; i++) { if (S.ra[i].round === round && S.ra[i].uid === uid) return S.ra[i]; }
+    return null;
+  }
+  function countAns(round) {
+    var n = 0;
+    S.rp.forEach(function (p) { if (findAns(round, p.id)) n++; });
+    return n;
+  }
+  function oEval(r) {
+    var cat = cats()[S.room.order[r]];
+    var ovr = S.room.ovr || {};
+    return evalEntries(cat, S.rp.map(function (p) {
+      var a = findAns(r, p.id);
+      return { uid: p.id, name: p.name, raw: a ? String(a.raw || '').slice(0, 40) : '', ovr: ovr['r' + r + '_' + p.id] };
+    }));
+  }
+  function oScores(upTo) {
+    var sc = {};
+    S.rp.forEach(function (p) { sc[p.id] = 0; });
+    for (var r = 0; r <= upTo; r++) { oEval(r).rows.forEach(function (x) { if (x.win) sc[x.uid]++; }); }
+    return sc;
+  }
+  function leaveBtn() { return '<button type="button" class="btn ghost" data-act="leave">' + esc(t('leave')) + '</button>'; }
+  function onlineView() {
+    var r = S.room;
+    if (!r) return hud(true) + '<p class="lead" role="status">' + esc(t('loading')) + '</p>' + leaveBtn();
+    if (r.status === 'lobby') return lobbyView();
+    if (r.status === 'play') return (findAns(r.round, S.uid) || S.sent === r.round) ? waitView() : oInputView();
+    if (r.status === 'reveal') return oRevealView();
+    return oFinalView();
+  }
+  function lobbyView() {
+    var r = S.room, host = isHost();
+    var rows = S.rp.map(function (p) {
+      return '<li><span class="who">' + esc(p.name) + (p.id === r.host ? '<span class="tag">' + esc(t('hosttag')) + '</span>' : '') + (p.id === S.uid ? '<span class="tag">' + esc(t('youtag')) + '</span>' : '') + '</span></li>';
+    }).join('');
+    return hud(true) + msgHtml() + '<section class="card codebox"><p class="eyebrow">' + esc(t('code')) + '</p>' + tiles(S.code, 'big win') +
+      '<button type="button" class="link" data-act="copy">' + esc(t('copy')) + '</button>' +
+      '<p class="note">' + esc(LNAME[r.lang]) + ' · ' + esc(t('rounds')) + ' ' + r.rounds + ' · ' + (r.time ? r.time + ' ' + esc(t('sec')) : esc(t('nolimit'))) + '</p></section>' +
+      '<section class="card"><h3 class="lab">' + esc(t('lobby')) + ' (' + S.rp.length + ' / 6)</h3><ul class="board">' + rows + '</ul></section>' +
+      (host ? '<button type="button" class="btn" data-act="ostart"' + (S.rp.length < 2 ? ' disabled' : '') + '>' + esc(t('startgame')) + '</button>' +
+        (S.rp.length < 2 ? '<p class="note">' + esc(t('need2')) + '</p>' : '') : '<p class="note" role="status">' + esc(t('waithost')) + '</p>') + leaveBtn();
+  }
+  function oInputView() {
+    var r = S.room;
+    return hud(true) + msgHtml() + '<div class="top"><span>' + esc(t('round', { a: r.round + 1, b: r.rounds })) + '</span><span>' + esc(t('nplayers', { n: S.rp.length })) + '</span></div>' +
+      inputBlock(cats()[r.order[r.round]], cleanName(PREF.oname) || t('pl'));
+  }
+  function waitView() {
+    var r = S.room, a = countAns(r.round), b = S.rp.length;
+    return hud(true) + msgHtml() + '<div class="top"><span>' + esc(t('round', { a: r.round + 1, b: r.rounds })) + '</span><span>' + esc(cats()[r.order[r.round]].n) + '</span></div>' +
+      '<section class="card center"><h2>' + esc(t('sent')) + '</h2><p class="muted" role="status">' + esc(t('waitfor', { a: a, b: b })) + '</p></section>' +
+      '<div class="bar ok"><div style="transform:scaleX(' + (b ? a / b : 0) + ')"></div></div>' +
+      (isHost() ? '<button type="button" class="btn ghost" data-act="oforce">' + esc(t('forcereveal')) + '</button>' : '') + leaveBtn();
+  }
+  function oRevealView() {
+    var r = S.room, host = isHost(), res = oEval(r.round), sc = oScores(r.round), last = r.round + 1 >= r.rounds;
+    var list = S.rp.map(function (p) {
+      var row = res.rows.filter(function (x) { return x.uid === p.id; })[0];
+      return { name: p.name, score: sc[p.id], add: !!(row && row.win) };
+    }).sort(function (a, b) { return b.score - a.score; });
+    return hud(true) + msgHtml() + '<div class="top"><span>' + esc(t('round', { a: r.round + 1, b: r.rounds })) + '</span><span>' + esc(cats()[r.order[r.round]].n) + '</span></div>' +
+      '<p class="verdict">' + verdictText(res) + '</p><section class="stack">' + resultCards(res, host ? 'otoggle' : '') + '</section>' +
+      '<section class="card"><h3 class="lab">' + esc(t('board')) + '</h3>' + boardHtml(list) + '</section>' +
+      (host ? '<button type="button" class="btn" data-act="onext">' + esc(last ? t('seeres') : t('nextr')) + '</button>' : '<p class="note" role="status">' + esc(t('hostnext')) + '</p>') + leaveBtn();
+  }
+  function oFinalView() {
+    var r = S.room, sc = oScores(r.rounds - 1);
+    return hud(true) + finalHtml(S.rp.map(function (p) { return { name: p.name, score: sc[p.id] }; })) +
+      '<button type="button" class="btn" data-act="leave">' + esc(t('home')) + '</button>';
+  }
+
+  /* ---------- Çizim ---------- */
+  function render(keepScroll) {
+    stopTimer();
+    var views = { home: homeView, setup: setupView, pass: passView, input: inputView, reveal: revealView, final: finalView, ocreate: ocreateView, ojoin: ojoinView, online: onlineView };
+    var html = views[S.screen]();
+    S.msg = '';
+    document.documentElement.lang = S.lang;
+    app.innerHTML = html;
+    if (!keepScroll) window.scrollTo(0, 0);
+    var a = document.getElementById('ans');
+    if (a) {
+      try { a.focus({ preventScroll: true }); } catch (e) { a.focus(); }
+      if (curTime()) startTimer(curTime());
+    }
+  }
+  var app = document.getElementById('app');
+
+  /* ---------- Yerel oyun akışı ---------- */
+  function syncInputs() {
+    var els = document.querySelectorAll('.pname');
+    if (els.length) S.names = [].map.call(els, function (e) { return e.value; });
+    var on = document.getElementById('oname');
+    if (on) PREF.oname = cleanName(on.value);
+    var oc = document.getElementById('ocode');
+    if (oc) S.ocode = oc.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 5);
+  }
+  function makeOrder(n, count) {
+    var o = [];
+    while (o.length < n) {
+      var b = []; for (var k = 0; k < count; k++) b.push(k);
+      for (var i = b.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = b[i]; b[i] = b[j]; b[j] = x; }
+      o = o.concat(b);
+    }
+    return o.slice(0, n);
+  }
+  function startLocal() {
+    syncInputs();
+    S.names = S.names.map(function (n, i) { n = cleanName(n); return n || defName(i); });
+    savePref();
+    S.mode = 'local';
+    S.players = S.names.map(function (n) { return { name: n, score: 0 }; });
+    S.order = makeOrder(S.rounds, cats().length);
+    S.round = 0; S.turn = 0; S.answers = []; S.screen = 'pass';
+    render();
+  }
+  function submit(skip) {
+    var inp = document.getElementById('ans');
+    if (!inp) return;
+    stopTimer();
+    var raw = skip === true ? '' : String(inp.value).slice(0, 40);
+    if (S.mode === 'online') { onlineSubmit(raw); return; }
+    if (S.screen !== 'input') return;
+    S.answers.push({ raw: raw });
+    fx('send');
+    S.turn++;
+    if (S.turn < S.players.length) { S.screen = 'pass'; }
+    else {
+      S.screen = 'reveal';
+      var res = evalEntries(cats()[S.order[S.round]], localEntries());
+      setTimeout(function () { fx(res.best > 0 ? 'win' : 'none'); }, 150);
+    }
+    render();
+  }
+  function nextLocal() {
+    var res = evalEntries(cats()[S.order[S.round]], localEntries());
+    res.rows.forEach(function (r, i) { if (r.win) S.players[i].score++; });
+    S.round++;
+    if (S.round >= S.rounds) { S.screen = 'final'; }
+    else { S.answers = []; S.turn = 0; S.screen = 'pass'; }
+    render();
+  }
+
+  /* ---------- Online akış ---------- */
+  var CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  function genCode() { var s = ''; for (var i = 0; i < 5; i++) s += CODE_CHARS.charAt(Math.floor(Math.random() * CODE_CHARS.length)); return s; }
+  function unsubAll() {
+    S.unsub.forEach(function (u) { try { u(); } catch (e) {} });
+    S.unsub = []; clearTimeout(S.hostTo); S.hostTk = '';
+  }
+  function subscribe(code) {
+    var base = 'rooms/' + code;
+    var onErr = function () { S.msg = t('roomerr'); render(true); };
+    S.unsub.push(S.db.doc(base).onSnapshot(function (sn) { S.room = sn.exists ? sn.data() : null; changed(); }, onErr));
+    S.unsub.push(S.db.collection(base + '/players').onSnapshot(function (sn) {
+      S.rp = sn.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: cleanName(x.name) || '?', joined: Number(x.joined) || 0 }; })
+        .sort(function (a, b) { return a.joined - b.joined || (a.id < b.id ? -1 : 1); });
+      changed();
+    }, onErr));
+    S.unsub.push(S.db.collection(base + '/answers').onSnapshot(function (sn) {
+      S.ra = sn.docs.map(function (d) { return d.data() || {}; });
+      changed();
+    }, onErr));
+  }
+  function enterOnline(code, lang) {
+    S.mode = 'online'; S.code = code; S.lang = lang; S.room = null; S.rp = []; S.ra = []; S.sent = -1; S.lastKey = '';
+    S.screen = 'online';
+    unsubAll(); subscribe(code); render();
+  }
+  function okey() {
+    var r = S.room;
+    if (!r) return 'x';
+    if (r.status === 'lobby') return 'lobby:' + S.rp.map(function (p) { return p.id + p.name; }).join(',') + ':' + (S.rp.length < 2);
+    if (r.status === 'play') {
+      var mine = !!findAns(r.round, S.uid) || S.sent === r.round;
+      return mine ? 'wait:' + r.round + ':' + countAns(r.round) + ':' + S.rp.length : 'in:' + r.round;
+    }
+    if (r.status === 'reveal') return 'rev:' + r.round + ':' + JSON.stringify(r.ovr || {}) + ':' + countAns(r.round) + ':' + S.rp.length;
+    return 'fin:' + S.rp.length + JSON.stringify(r.ovr || {});
+  }
+  function hostSet(patch) {
+    if (S.busy) return;
+    S.busy = true;
+    S.db.doc('rooms/' + S.code).update(patch).catch(function () { S.msg = t('roomerr'); render(true); }).then(function () { S.busy = false; });
+  }
+  function hostTimer() {
+    var r = S.room;
+    if (!r.time) return;
+    var k = r.round + ':' + r.t;
+    if (S.hostTk === k) return;
+    S.hostTk = k; clearTimeout(S.hostTo);
+    S.hostTo = setTimeout(function () {
+      if (S.room && S.room.status === 'play' && S.room.round === r.round && isHost()) hostSet({ status: 'reveal' });
+    }, (r.time + 6) * 1000);
+  }
+  function changed() {
+    if (S.screen !== 'online' || !S.room) return;
+    var r = S.room;
+    if (isHost() && r.status === 'play') {
+      if (S.rp.length > 0 && countAns(r.round) >= S.rp.length) hostSet({ status: 'reveal' });
+      hostTimer();
+    }
+    var k = okey();
+    if (k !== S.lastKey) {
+      var prev = S.lastKey.split(':')[0], cur = k.split(':')[0];
+      S.lastKey = k;
+      render(prev === cur);
+      if (cur === 'rev' && prev !== 'rev') { var res = oEval(r.round); fx(res.best > 0 ? 'win' : 'none'); }
+    }
+  }
+  function onlineSubmit(raw) {
+    var r = S.room, round = r.round;
+    if (S.sent === round) return;
+    S.sent = round; fx('send');
+    S.lastKey = okey(); render(true);
+    S.db.doc('rooms/' + S.code + '/answers/r' + round + '_' + S.uid).set({ round: round, uid: S.uid, raw: raw, ts: Date.now() })
+      .catch(function () { S.sent = -1; S.msg = t('roomerr'); S.lastKey = ''; changed(); });
+  }
+  function createRoom() {
+    syncInputs();
+    var name = cleanName(PREF.oname) || t('pl');
+    PREF.oname = name; savePref();
+    var tryMake = function (n) {
+      if (n > 5) { S.msg = t('roomerr'); render(true); return Promise.resolve(); }
+      var code = genCode();
+      return S.db.doc('rooms/' + code).get().then(function (ex) {
+        if (ex.exists) return tryMake(n + 1);
+        return S.db.doc('rooms/' + code).set({ code: code, host: S.uid, lang: S.lang, rounds: S.rounds, time: S.time, status: 'lobby', round: 0, order: [], t: 0, ovr: {}, created: Date.now() })
+          .then(function () { return S.db.doc('rooms/' + code + '/players/' + S.uid).set({ name: name, joined: Date.now() }); })
+          .then(function () { enterOnline(code, S.lang); });
+      });
+    };
+    tryMake(0).catch(function () { S.msg = t('roomerr'); render(true); });
+  }
+  function joinRoom() {
+    syncInputs();
+    var name = cleanName(PREF.oname) || t('pl');
+    PREF.oname = name; savePref();
+    var code = S.ocode;
+    if (code.length !== 5) { S.msg = t('notfound'); render(true); return; }
+    var room;
+    S.db.doc('rooms/' + code).get().then(function (d) {
+      if (!d.exists) { S.msg = t('notfound'); render(true); return; }
+      room = d.data();
+      return S.db.collection('rooms/' + code + '/players').get().then(function (ps) {
+        var already = ps.docs.some(function (x) { return x.id === S.uid; });
+        if (room.status !== 'lobby' && !already) { S.msg = t('started'); render(true); return; }
+        if (!already && ps.size >= 6) { S.msg = t('full'); render(true); return; }
+        var go = function () { enterOnline(code, LANGS.indexOf(room.lang) > -1 ? room.lang : 'en'); };
+        if (already) { go(); return; }
+        return S.db.doc('rooms/' + code + '/players/' + S.uid).set({ name: name, joined: Date.now() }).then(go);
+      });
+    }).catch(function () { S.msg = t('roomerr'); render(true); });
+  }
+  function leaveRoom() {
+    unsubAll();
+    S.room = null; S.rp = []; S.ra = []; S.code = ''; S.mode = 'local'; S.lang = PREF.lang; S.screen = 'home';
+    render();
+  }
+
+  /* ---------- Olaylar ---------- */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]');
+    if (!b) return;
+    var act = b.dataset.act;
+    if (b.getAttribute('aria-disabled') === 'true') return;
+    if (act !== 'music' && act !== 'fx') fx('tap');
+    if (act !== 'submit' && act !== 'skip') syncInputs();
+    if (act === 'music') { PREF.music = !PREF.music; savePref(); if (PREF.music) musicOn(); else musicOff(); syncHud(); }
+    else if (act === 'fx') { PREF.fx = !PREF.fx; savePref(); syncHud(); }
+    else if (act === 'local') { S.screen = 'setup'; render(); }
+    else if (act === 'ocreate') { S.screen = 'ocreate'; render(); }
+    else if (act === 'ojoin') { S.screen = 'ojoin'; render(); }
+    else if (act === 'home') { S.screen = 'home'; render(); }
+    else if (act === 'add') { if (S.names.length < 6) S.names.push(defName(S.names.length)); render(true); }
+    else if (act === 'remove') { S.names.splice(+b.dataset.i, 1); render(true); }
+    else if (act === 'rounds') { S.rounds = +b.dataset.v; savePref(); render(true); }
+    else if (act === 'time') { S.time = +b.dataset.v; savePref(); render(true); }
+    else if (act === 'start') startLocal();
+    else if (act === 'ready') { S.screen = 'input'; render(); }
+    else if (act === 'submit') submit(false);
+    else if (act === 'skip') submit(true);
+    else if (act === 'toggle') {
+      var i = +b.dataset.u, res = evalEntries(cats()[S.order[S.round]], localEntries());
+      S.answers[i].ovr = !res.rows[i].ok; render(true);
+    }
+    else if (act === 'next') nextLocal();
+    else if (act === 'again') startLocal();
+    else if (act === 'ocgo') createRoom();
+    else if (act === 'ojgo') joinRoom();
+    else if (act === 'ostart') { var r = S.room; hostSet({ status: 'play', round: 0, order: makeOrder(r.rounds, CAT[r.lang].length), t: Date.now() }); }
+    else if (act === 'oforce') hostSet({ status: 'reveal' });
+    else if (act === 'otoggle') {
+      var rr = S.room, ev = oEval(rr.round), uid = b.dataset.u, row = ev.rows.filter(function (x) { return x.uid === uid; })[0];
+      if (row) { var o = {}; o['r' + rr.round + '_' + uid] = !row.ok; hostSet({ ovr: o }); }
+    }
+    else if (act === 'onext') {
+      var r2 = S.room;
+      if (r2.round + 1 >= r2.rounds) hostSet({ status: 'final' }); else hostSet({ status: 'play', round: r2.round + 1, t: Date.now() });
+    }
+    else if (act === 'copy') {
+      var done = function () { b.textContent = t('copied'); setTimeout(function () { b.textContent = t('copy'); }, 1500); };
+      try { navigator.clipboard.writeText(S.code).then(done, function () {}); } catch (err) {}
+    }
+    else if (act === 'leave') leaveRoom();
+  });
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'lang') {
+      syncInputs();
+      var old = S.lang; S.lang = e.target.value;
+      if (LANGS.indexOf(S.lang) < 0) S.lang = old;
+      S.names = S.names.map(function (n, i) { return isDef(n) ? defName(i) : n; });
+      savePref(); render(true);
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target && e.target.id === 'ans') { e.preventDefault(); submit(false); }
+  });
+  document.addEventListener('input', function (e) {
+    var id = e.target && e.target.id;
+    if (id === 'ans') { var c = document.getElementById('cnt'); if (c) c.textContent = letters(e.target.value) + ' ' + t('letters'); }
+    if (id === 'ocode') { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 5); }
+  });
+
+  /* ---------- Başlangıç ---------- */
+  function initDb() {
+    if (!window.claude || !window.claude.use) { S.dbState = 'off'; return Promise.resolve(); }
+    return Promise.all([window.claude.use('db'), window.claude.use('user')]).then(function (a) {
+      var db = a[0], user = a[1];
+      if (!db || !user) { S.dbState = 'off'; return; }
+      return user.id().then(function (id) {
+        if (!id) { S.dbState = 'off'; return; }
+        S.db = db; S.uid = id;
+        return user.can('data.write').then(function (w) { S.dbState = w === false ? 'nowrite' : 'ready'; });
+      });
+    }).catch(function () { S.dbState = 'off'; });
+  }
+  loadPref();
+  S.lang = PREF.lang; S.rounds = PREF.rounds; S.time = PREF.time;
+  S.names = PREF.names || [defName(0), defName(1)];
+  render();
+  initDb().then(function () { if (S.screen === 'home') render(true); });
+})();
+</script>
+
+</body></html>
